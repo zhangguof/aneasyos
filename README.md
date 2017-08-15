@@ -1,0 +1,2 @@
+# aneasyos
+An easy os.
