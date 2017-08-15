@@ -13,10 +13,10 @@ ASM				 =nasm
 LD				 =ld
 CC				 =gcc
 ASMBFLAGS		 = -I boot/include/
-ASMKFLAGS		 = -I include/ -f elf
-LDFLAGS			 = -s -Ttext $(ENTRYPOINT)
+ASMKFLAGS		 = -I include/ -f elf32
+LDFLAGS			 = -Ttext $(ENTRYPOINT) -m elf_i386
 #LDFLAGS			 = -elf -T link.ld --oformat elf32-i386
-CFLAGS			 = -I include/ -c -fno-builtin -fno-stack-protector
+CFLAGS			 = -I include/ -c -fno-builtin -fno-stack-protector -m32 -g
 
 #program
 BOOT			 = boot/boot.bin boot/setup.bin
@@ -24,7 +24,10 @@ KERNEL			 = kernel/kernel.bin
 
 CSRC= $(wildcard kernel/*.c lib/*.c mm/*.c)
 ASRC= $(wildcard kernel/asm/*.asm lib/asm/*.asm)
-OBJS= $(addsuffix .o,$(basename $(ASRC) $(CSRC)))
+tmpOBJS= $(addsuffix .o,$(basename $(ASRC) $(CSRC)))
+OBJS1 = $(filter-out kernel/asm/kernel.o, $(tmpOBJS))
+OBJS = kernel/asm/kernel.o $(OBJS1)
+
 
 bootlen			 = 1
 setuplen	     = 17
