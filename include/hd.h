@@ -256,7 +256,7 @@ struct hd_info
 #define ATA_IDENTIFY		0xEC
 #define ATA_READ		0x20
 #define ATA_WRITE		0x30
-/* for DEVICE register. */  //lba ÓÉ4²¿·Ö×é³É
+/* for DEVICE register. */  //lba ç”±4éƒ¨åˆ†ç»„æˆ
 #define	MAKE_DEVICE_REG(lba,drv,lba_highest) (((lba) << 6) |		\
 					      ((drv) << 4) |		\
 					      (lba_highest & 0xF) | 0xA0)

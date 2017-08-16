@@ -2,16 +2,16 @@
 #define _tty_h
 struct s_console;
 
-#define TTY_IN_BYTES	256  //tty»º³åµÄ´óĞ¡
+#define TTY_IN_BYTES	256  //ttyç¼“å†²çš„å¤§å°
 
 /* TTY */
 typedef struct s_tty
 {
-	u32	in_buf[TTY_IN_BYTES];	/* TTY ÊäÈë»º³åÇø */
-	u32*	p_inbuf_head;		/* Ö¸Ïò»º³åÇøÖĞÏÂÒ»¸ö¿ÕÏĞÎ»ÖÃ */
-	u32*	p_inbuf_tail;		/* Ö¸Ïò¼üÅÌÈÎÎñÓ¦´¦ÀíµÄ¼üÖµ */
-	int	inbuf_count;		/* »º³åÇøÖĞÒÑ¾­Ìî³äÁË¶àÉÙ */
-	//char* p_buf;            //Êä³öbuf
+	u32	in_buf[TTY_IN_BYTES];	/* TTY è¾“å…¥ç¼“å†²åŒº */
+	u32*	p_inbuf_head;		/* æŒ‡å‘ç¼“å†²åŒºä¸­ä¸‹ä¸€ä¸ªç©ºé—²ä½ç½® */
+	u32*	p_inbuf_tail;		/* æŒ‡å‘é”®ç›˜ä»»åŠ¡åº”å¤„ç†çš„é”®å€¼ */
+	int	inbuf_count;		/* ç¼“å†²åŒºä¸­å·²ç»å¡«å……äº†å¤šå°‘ */
+	//char* p_buf;            //è¾“å‡ºbuf
 
 	struct s_console *	p_console;
 }TTY;
@@ -19,6 +19,6 @@ typedef struct s_tty
 
 
 void in_process(TTY* p_tty, u32 key);
-void tty_write(TTY* p_tty, char* buf, int len);  //µ¼³ö¸øsys_writeµ÷ÓÃ
+void tty_write(TTY* p_tty, char* buf, int len);  //å¯¼å‡ºç»™sys_writeè°ƒç”¨
 
 #endif

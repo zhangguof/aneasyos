@@ -1,9 +1,9 @@
 #ifndef _sched_h
 #define _sched_h
 
-void init_sched();//³õÊ¼»¯³ÌĞò£¬°üÀ¨½ø³Ì±í 8253µÈ
+void init_sched();//åˆå§‹åŒ–ç¨‹åºï¼ŒåŒ…æ‹¬è¿›ç¨‹è¡¨ 8253ç­‰
 
-//void seched(); //½ø³öµ÷¶Èº¯Êı
+//void seched(); //è¿›å‡ºè°ƒåº¦å‡½æ•°
 void schedule();
 void* va2la(int pid, void* va);
 //int msg_send(proc* current, int dest, MESSAGE* m);

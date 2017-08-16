@@ -1,6 +1,6 @@
 /*
 *
-* console.h ¿ØÖÆÌ¨Çı¶¯
+* console.h æ§åˆ¶å°é©±åŠ¨
 *
 */
 #ifndef _console_h
@@ -9,10 +9,10 @@
 /* CONSOLE */
 typedef struct s_console
 {
-	unsigned int	current_start_addr;	/* µ±Ç°ÏÔÊ¾µ½ÁËÊ²Ã´Î»ÖÃ	  */
-	unsigned int	original_addr;		/* µ±Ç°¿ØÖÆÌ¨¶ÔÓ¦ÏÔ´æÎ»ÖÃ */
-	unsigned int	v_mem_limit;		/* µ±Ç°¿ØÖÆÌ¨Õ¼µÄÏÔ´æ´óĞ¡ */
-	unsigned int	cursor;			/* µ±Ç°¹â±êÎ»ÖÃ */
+	unsigned int	current_start_addr;	/* å½“å‰æ˜¾ç¤ºåˆ°äº†ä»€ä¹ˆä½ç½®	  */
+	unsigned int	original_addr;		/* å½“å‰æ§åˆ¶å°å¯¹åº”æ˜¾å­˜ä½ç½® */
+	unsigned int	v_mem_limit;		/* å½“å‰æ§åˆ¶å°å çš„æ˜¾å­˜å¤§å° */
+	unsigned int	cursor;			/* å½“å‰å…‰æ ‡ä½ç½® */
 }CONSOLE;
 
 #define SCR_UP	1	/* scroll forward */
@@ -24,7 +24,7 @@ typedef struct s_console
 #define GRAY_CHAR		(MAKE_COLOR(BLACK, BLACK) | BRIGHT)
 #define RED_CHAR		(MAKE_COLOR(BLUE, RED) | BRIGHT)
 
-#define DEFAULT_CHAR_COLOR	0x07	/* 0000 0111 ºÚµ×°××Ö */
+#define DEFAULT_CHAR_COLOR	0x07	/* 0000 0111 é»‘åº•ç™½å­— */
 
 int is_current_console(CONSOLE* p_con);
 void out_char(CONSOLE* p_con, char ch);

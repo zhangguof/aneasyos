@@ -1,5 +1,5 @@
 ;;;;boot.asm
-;;;; Òýµ¼³ÌÐò£¬¼ÓÔØloadÄ£¿éµ½0x90000´¦
+;;;; å¼•å¯¼ç¨‹åºï¼ŒåŠ è½½loadæ¨¡å—åˆ°0x90000å¤„
 %include "pm.inc"
 
 	BOOTSEG equ 0x7c0
@@ -16,7 +16,7 @@ go:
 	mov ss,ax
 	mov sp,0x7c00
 
-	;;ÇåÆÁ
+	;;æ¸…å±
 	mov ax, 0x0600
 	mov bx, 0x700
 	mov cx, 0
@@ -30,7 +30,7 @@ go:
 load_system1:
 
     mov ax,LOADSEG
-	mov es,ax           ;ES:BX - ¶ÁÈë»º´æ£¨0x9000£º0£©
+	mov es,ax           ;ES:BX - è¯»å…¥ç¼“å­˜ï¼ˆ0x9000ï¼š0ï¼‰
 	xor bx,bx
 
     mov ax,0x1
@@ -45,7 +45,7 @@ load_system1:
 
 load_system2:
     mov ax,SYSSEG
-	mov es,ax           ;ES:BX - ¶ÁÈë»º´æ£¨0x8000£º0£©
+	mov es,ax           ;ES:BX - è¯»å…¥ç¼“å­˜ï¼ˆ0x8000ï¼š0ï¼‰
 	xor bx,bx
 
     mov ax,LOADLEN+1
@@ -59,29 +59,29 @@ load_system2:
     jmp LOADSEG:0
 
 
-;;ÊäÈë:²ÎÊýax= ÆðÊ¼ÉÈÇøºÅ
-;;      es:bx ´Ó´ÅÅÌ¶ÁÈ¡Êý¾Ýµ½¸ÃÖ¸ÕëÖ¸ÏòµÄ»º´æ
-;; ¶ÁÈ¡Ò»¸öÉÈÇø
+;;è¾“å…¥:å‚æ•°ax= èµ·å§‹æ‰‡åŒºå·
+;;      es:bx ä»Žç£ç›˜è¯»å–æ•°æ®åˆ°è¯¥æŒ‡é’ˆæŒ‡å‘çš„ç¼“å­˜
+;; è¯»å–ä¸€ä¸ªæ‰‡åŒº
 readsec:
         ;push bp
         ;mov bp, sp
-        ;sub esp, 2  ;;[bp-2] ÐèÒª¶ÁÈ¡µÄÉÈÇøÊý
+        ;sub esp, 2  ;;[bp-2] éœ€è¦è¯»å–çš„æ‰‡åŒºæ•°
 
         ;mov byte [bp-2], cl
         push cx
         push ax
         push bx
-        mov bl,18 ;;bl=³ýÊý£¬ax=±»³ýÊý
-        div bl      ;;ÉÌÔÚalÖÐ£¬ÓàÊýÔçahÖÐ
+        mov bl,18 ;;bl=é™¤æ•°ï¼Œax=è¢«é™¤æ•°
+        div bl      ;;å•†åœ¨alä¸­ï¼Œä½™æ•°æ—©ahä¸­
         inc ah      ;;
-        mov cl,ah    ;;ÆðÊ¼ÉÈÇøºÅ
+        mov cl,ah    ;;èµ·å§‹æ‰‡åŒºå·
         mov dh, al
         shr al, 1    ;;
-        mov ch, al   ;;´ÅµÀºÅ
-        and dh, 1    ;;´ÅÍ·ºÅ
+        mov ch, al   ;;ç£é“å·
+        and dh, 1    ;;ç£å¤´å·
         pop bx
 
-        mov dl, 0    ;;´ÅÅÌ
+        mov dl, 0    ;;ç£ç›˜
 .goonread:
         mov ah, 2
         mov al, byte [bp-2]
@@ -91,19 +91,19 @@ readsec:
         pop cx
 
         ret
-;¼ÓÔØidt£¬gdt»ùÖ·¼Ä´æÆ÷idtrºÍgdtr
+;åŠ è½½idtï¼ŒgdtåŸºå€å¯„å­˜å™¨idtrå’Œgdtr
  ;   mov ax, BOOTSEG
  ;   mov ds, ax
  ;   lidt [idt_48]
  ;   lgdt [gdt_48]
 
-;a20µØÖ·Ïß
+;a20åœ°å€çº¿
 ;    in al, 0x92
 ;    or al, 00000010b
 ;    out 0x92, al
-;ÉèÖÃ¿ØÖÆ¼Ä´æÆ÷cr0£¬½øÈë±£»¤Ä£Ê½¡£¶ÎÑ¡Ôñ·ûÖµ8¶ÔÓ¦gdt±íÖÐµÄµÚ¶þ¸ö¶ÎÃèÊö·û
+;è®¾ç½®æŽ§åˆ¶å¯„å­˜å™¨cr0ï¼Œè¿›å…¥ä¿æŠ¤æ¨¡å¼ã€‚æ®µé€‰æ‹©ç¬¦å€¼8å¯¹åº”gdtè¡¨ä¸­çš„ç¬¬äºŒä¸ªæ®µæè¿°ç¬¦
  ;   mov ax, 0x0001
-;    lmsw ax             ;×°Èë»úÆ÷×´Ì¬×Ö
+;    lmsw ax             ;è£…å…¥æœºå™¨çŠ¶æ€å­—
     ;mov eax,cr0
    ; or eax, 1
     ;mov cr0,eax
@@ -121,16 +121,16 @@ DispStr:
 	int 10h
 	ret
 
-;È«¾ÖÃèÊö·û±íGDTµÄÄÚÈÝ¡£°üº¬3¸ö¶ÎÃèÊö·û¡£
+;å…¨å±€æè¿°ç¬¦è¡¨GDTçš„å†…å®¹ã€‚åŒ…å«3ä¸ªæ®µæè¿°ç¬¦ã€‚
 ;gdt:            Descriptor 0,           0,      0
 ;    code32_des: Descriptor LOADSEG*16,   0x7ff,  DA_32+DA_LIMIT_4K+DA_CR
  ;   data_des:   Descriptor LOADSEG*16,   0x7ff,  DA_DRW+DA_LIMIT_4K
 ;cli
-;idt_48: dw 0  ;idt ³¤¶È0
- ;       dw 0,0; ÏßÐÔ»ùÖ·Ò²ÊÇ0
+;idt_48: dw 0  ;idt é•¿åº¦0
+ ;       dw 0,0; çº¿æ€§åŸºå€ä¹Ÿæ˜¯0
 
-;gdt_48: dw 0x7ff ;gdt±í³¤¶ÈÊÇ2kb£¬¿ÉÈÝÄÉ256¸öÃèÊö·ûÏî
- ;       dw 0x7c00+gdt,0 ;gdtµÄÏßÐÔ»ùÖ·ÔÚ0x7c0¶ÎµÄgdtÆ«ÒÆ´¦
+;gdt_48: dw 0x7ff ;gdtè¡¨é•¿åº¦æ˜¯2kbï¼Œå¯å®¹çº³256ä¸ªæè¿°ç¬¦é¡¹
+ ;       dw 0x7c00+gdt,0 ;gdtçš„çº¿æ€§åŸºå€åœ¨0x7c0æ®µçš„gdtåç§»å¤„
 
 BootMessage:	dd "Now Booting ..."
 msgLen equ $-BootMessage

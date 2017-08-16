@@ -3,14 +3,14 @@
 ;                              klib.asm
 ; ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-;;µ¼³ö¶¨Òåµkklib.h ¿É±»cÎÄ¼şÒıÓÃ
-; µ¼ÈëÈ«¾Ö±äÁ¿
+;;å¯¼å‡ºå®šä¹‰ç¥‚klib.h å¯è¢«cæ–‡ä»¶å¼•ç”¨
+; å¯¼å…¥å…¨å±€å˜é‡
 %include "sconst.inc"
 extern	disp_pos
 
 [SECTION .text]
 
-; µ¼³öº¯Êı
+; å¯¼å‡ºå‡½æ•°
 global	disp_str
 global	disp_color_str
 global	out_byte
@@ -38,7 +38,7 @@ disp_str:
 	lodsb
 	test	al, al
 	jz	.2
-	cmp	al, 0Ah	; ÊÇ»Ø³µÂğ?
+	cmp	al, 0Ah	; æ˜¯å›è½¦å—?
 	jnz	.3
 	push	eax
 	mov	eax, edi
@@ -76,7 +76,7 @@ disp_color_str:
 	lodsb
 	test	al, al
 	jz	.2
-	cmp	al, 0Ah	; ÊÇ»Ø³µÂğ?
+	cmp	al, 0Ah	; æ˜¯å›è½¦å—?
 	jnz	.3
 	push	eax
 	mov	eax, edi
@@ -107,7 +107,7 @@ out_byte:
 	mov	edx, [esp + 4]		; port
 	mov	al, [esp + 4 + 4]	; value
 	out	dx, al
-	nop	; Ò»µãÑÓ³Ù
+	nop	; ä¸€ç‚¹å»¶è¿Ÿ
 	nop
 	ret
 
@@ -118,7 +118,7 @@ in_byte:
 	mov	edx, [esp + 4]		; port
 	xor	eax, eax
 	in	al, dx
-	nop	; Ò»µãÑÓ³Ù
+	nop	; ä¸€ç‚¹å»¶è¿Ÿ
 	nop
 	ret
 

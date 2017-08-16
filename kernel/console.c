@@ -1,6 +1,6 @@
 /*
-*console.c ¿ØÖÆÌ¨´úÂë
-*ÏÔÊ¾Êä³ö
+*console.c æ§åˆ¶å°ä»£ç 
+*æ˜¾ç¤ºè¾“å‡º
 */
 
 #include "MyOs.h"
@@ -19,14 +19,14 @@ void init_screen(TTY* p_tty)
     int nr_tty = p_tty - tty_table;
     p_tty->p_console = console_table + nr_tty;
 
-    int v_mem_size     =       V_MEM_SIZE >> 1; //ÏÔ´æ×Ü´óĞ¡£¨in word£©
+    int v_mem_size     =       V_MEM_SIZE >> 1; //æ˜¾å­˜æ€»å¤§å°ï¼ˆin wordï¼‰
 
     int con_v_mem_size =       v_mem_size / NR_CONSOLES;
     p_tty->p_console->original_addr = nr_tty * con_v_mem_size;
     p_tty->p_console->v_mem_limit   = con_v_mem_size;
     p_tty->p_console->current_start_addr = p_tty->p_console->original_addr;
 
-    //Ä¬ÈÏ¹â±ê
+    //é»˜è®¤å…‰æ ‡
     p_tty->p_console->cursor = p_tty->p_console->original_addr;
     if(nr_tty == 0)
     {
@@ -41,10 +41,10 @@ void init_screen(TTY* p_tty)
     set_cursor(p_tty->p_console->cursor);
 }
 
-//ÇĞ»»¿ØÖÆÌ¨
+//åˆ‡æ¢æ§åˆ¶å°
 void select_console(int nr_console)
 {
-    if((nr_console < 0)|| (nr_console>=NR_CONSOLES)) //´ıÇĞ»»µÄconsole²»´æÔÚ
+    if((nr_console < 0)|| (nr_console>=NR_CONSOLES)) //å¾…åˆ‡æ¢çš„consoleä¸å­˜åœ¨
     {
         return;
     }
@@ -150,7 +150,7 @@ void set_cursor(unsigned int position)
 /*======================================================================*
                            flush
 *======================================================================*/
-static void flush(CONSOLE* p_con)  //Ë¢ĞÂ
+static void flush(CONSOLE* p_con)  //åˆ·æ–°
 {
 	if (is_current_console(p_con)) {
 		set_cursor(p_con->cursor);

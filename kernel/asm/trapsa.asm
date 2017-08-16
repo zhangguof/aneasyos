@@ -1,12 +1,12 @@
-;;ÖĞ¶ÏÏà¹ØµÄ»ã±à´úÂë
+;;ä¸­æ–­ç›¸å…³çš„æ±‡ç¼–ä»£ç 
 
 %include "sconst.inc"
 
-extern idt_ptr  ;;µ¼Èë·ûºÅ
+extern idt_ptr  ;;å¯¼å…¥ç¬¦å·
 extern exception_handler ;; traps.c
 extern spurious_irq   ;;i8259a.c
 extern tss
-extern TopOfStack    ;;kernel.asm ÄÚºËÕ»¿Õ¼ä esp
+extern TopOfStack    ;;kernel.asm å†…æ ¸æ ˆç©ºé—´ esp
 extern p_proc_ready
 
 extern k_reenter
@@ -22,9 +22,9 @@ extern irq_table
 
 
 
-;;µ¼³ö·ûºÅ
+;;å¯¼å‡ºç¬¦å·
 
-;;intel ±£ÁôÖĞ¶Ï 0x0~0x10
+;;intel ä¿ç•™ä¸­æ–­ 0x0~0x10
 global	divide_error
 global	single_step_exception
 global	nmi
@@ -42,7 +42,7 @@ global	general_protection
 global	page_fault
 global	copr_error
 
-;;8059a Ó²¼şÖĞ¶Ï
+;;8059a ç¡¬ä»¶ä¸­æ–­
 global	hwint00
 global	hwint01
 global	hwint02
@@ -70,7 +70,7 @@ clock_int_msg db "^",0
 [bits 32]
 
 
-; ÖĞ¶ÏºÍÒì³£ -- Ó²¼şÖĞ¶Ï
+; ä¸­æ–­å’Œå¼‚å¸¸ -- ç¡¬ä»¶ä¸­æ–­
 ; ---------------------------------
 %macro	hwint_master	1
     call save
@@ -98,7 +98,7 @@ ALIGN	16
 hwint00:		; Interrupt routine for irq 0 (the clock).
 
     hwint_master 0
-    ;sub esp,4   ;Ìø¹ı retaddr
+    ;sub esp,4   ;è·³è¿‡ retaddr
  ;    call save
  ;    in al, INT_M_CTLMASK
  ;   or al,1
@@ -108,7 +108,7 @@ hwint00:		; Interrupt routine for irq 0 (the clock).
 
     ;inc byte [gs:0]
 
-  ;  mov al, EOI  ;Í¨Öª8259aÖĞ¶Ï½áÊø£¬¿ÉÒÔ½ÓÊÜÖĞ¶ÏÇëÇó
+  ;  mov al, EOI  ;é€šçŸ¥8259aä¸­æ–­ç»“æŸï¼Œå¯ä»¥æ¥å—ä¸­æ–­è¯·æ±‚
  ;   out INT_M_CTL, al
 
  ;   sti
@@ -122,7 +122,7 @@ hwint00:		; Interrupt routine for irq 0 (the clock).
  ;   and al, 0xfe
  ; out INT_M_CTLMASK,al
 
-;    ret   ;;ÖĞ¶ÏÖØÈë·µ»Øµ½ .restart_reenter ,Í¨³£»Øµ½.restart_v2
+;    ret   ;;ä¸­æ–­é‡å…¥è¿”å›åˆ° .restart_reenter ,é€šå¸¸å›åˆ°.restart_v2
 
 ALIGN	16
 hwint01:		; Interrupt routine for irq 1 (keyboard)
@@ -156,19 +156,19 @@ hwint07:		; Interrupt routine for irq 7 (printer)
 %macro	hwint_slave	1
 	call	save
 	in	al, INT_S_CTLMASK	; `.
-	or	al, (1 << (%1 - 8))	;  | ÆÁ±Îµ±Ç°ÖĞ¶Ï
+	or	al, (1 << (%1 - 8))	;  | å±è”½å½“å‰ä¸­æ–­
 	out	INT_S_CTLMASK, al	; /
-	mov	al, EOI			; `. ÖÃEOIÎ»(master)
+	mov	al, EOI			; `. ç½®EOIä½(master)
 	out	INT_M_CTL, al		; /
-	nop				; `. ÖÃEOIÎ»(slave)
-	out	INT_S_CTL, al		; /  Ò»¶¨×¢Òâ£ºslaveºÍmaster¶¼ÒªÖÃEOI
-	sti	; CPUÔÚÏìÓ¦ÖĞ¶ÏµÄ¹ı³ÌÖĞ»á×Ô¶¯¹ØÖĞ¶Ï£¬Õâ¾äÖ®ºó¾ÍÔÊĞíÏìÓ¦ĞÂµÄÖĞ¶Ï
+	nop				; `. ç½®EOIä½(slave)
+	out	INT_S_CTL, al		; /  ä¸€å®šæ³¨æ„ï¼šslaveå’Œmasteréƒ½è¦ç½®EOI
+	sti	; CPUåœ¨å“åº”ä¸­æ–­çš„è¿‡ç¨‹ä¸­ä¼šè‡ªåŠ¨å…³ä¸­æ–­ï¼Œè¿™å¥ä¹‹åå°±å…è®¸å“åº”æ–°çš„ä¸­æ–­
 	push	%1			; `.
-	call	[irq_table + 4 * %1]	;  | ÖĞ¶Ï´¦Àí³ÌĞò
+	call	[irq_table + 4 * %1]	;  | ä¸­æ–­å¤„ç†ç¨‹åº
 	pop	ecx			; /
 	cli
 	in	al, INT_S_CTLMASK	; `.
-	and	al, ~(1 << (%1 - 8))	;  | »Ö¸´½ÓÊÜµ±Ç°ÖĞ¶Ï
+	and	al, ~(1 << (%1 - 8))	;  | æ¢å¤æ¥å—å½“å‰ä¸­æ–­
 	out	INT_S_CTLMASK, al	; /
 	ret
 %endmacro
@@ -208,7 +208,7 @@ hwint15:		; Interrupt routine for irq 15
 
 
 
-; ÖĞ¶ÏºÍÒì³£ -- Òì³£
+; ä¸­æ–­å’Œå¼‚å¸¸ -- å¼‚å¸¸
 divide_error:
 	push	0xFFFFFFFF	; no err code
 	push	0		; vector_no	= 0
@@ -268,8 +268,8 @@ copr_error:
 	push	16		; vector_no	= 10h
 	jmp	exception
 
-;;Òì³£´¦Àí
+;;å¼‚å¸¸å¤„ç†
 exception:
-	call	exception_handler  ;;Òì³£´¦Àíº¯Êı£¬ÔÚtraps.cÖĞÊµÏÖ
-	add	esp, 4*2	; ÈÃÕ»¶¥Ö¸Ïò EIP£¬¶ÑÕ»ÖĞ´Ó¶¥ÏòÏÂÒÀ´ÎÊÇ£ºEIP¡¢CS¡¢EFLAGS
+	call	exception_handler  ;;å¼‚å¸¸å¤„ç†å‡½æ•°ï¼Œåœ¨traps.cä¸­å®ç°
+	add	esp, 4*2	; è®©æ ˆé¡¶æŒ‡å‘ EIPï¼Œå †æ ˆä¸­ä»é¡¶å‘ä¸‹ä¾æ¬¡æ˜¯ï¼šEIPã€CSã€EFLAGS
 	hlt

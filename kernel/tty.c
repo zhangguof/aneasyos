@@ -1,7 +1,7 @@
 /*
 * tty.c
-*ÊµÏÖttyÈÎÎñ
-*Ò»¸öttyÈÎÎñÊÇÒ»¸ö½ø³Ì£¬´¦ÀíËùÓÐµÄÖÕ¶ËÊäÈëÊä³ö
+*å®žçŽ°ttyä»»åŠ¡
+*ä¸€ä¸ªttyä»»åŠ¡æ˜¯ä¸€ä¸ªè¿›ç¨‹ï¼Œå¤„ç†æ‰€æœ‰çš„ç»ˆç«¯è¾“å…¥è¾“å‡º
 */
 
 #include "MyOs.h"
@@ -38,7 +38,7 @@ void task_tty()
     {
         init_tty(p_tty);
     }
-    //nr_current_console = 0;  //³õÊ¼¿ØÖÆÌ¨
+    //nr_current_console = 0;  //åˆå§‹æŽ§åˆ¶å°
     select_console(0);
     //disp_str("--begin tty loop----\n")
     while(1)
@@ -62,12 +62,12 @@ void tty_do_read(TTY* p_tty)
 
 void tty_do_write(TTY* p_tty)
 {
-    if(p_tty->inbuf_count)  //»º´æÖÐÓÐÊý¾Ý
+    if(p_tty->inbuf_count)  //ç¼“å­˜ä¸­æœ‰æ•°æ®
     {
         char ch = *(p_tty->p_inbuf_tail);
         p_tty->p_inbuf_tail++;
 
-        //inbuf_count ±£Ö¤ÁËÒ»¶¨»áÓÐÊý¾Ý
+        //inbuf_count ä¿è¯äº†ä¸€å®šä¼šæœ‰æ•°æ®
         if(p_tty->p_inbuf_tail == p_tty->in_buf + TTY_IN_BYTES)
         {
             p_tty->p_inbuf_tail= p_tty->in_buf;
@@ -87,7 +87,7 @@ char get_char_form_tty(TTY* p_tty)
    ch = *(p_tty->p_inbuf_tail);
    p_tty->p_inbuf_tail++;
 
-    //inbuf_count ±£Ö¤ÁËÒ»¶¨»áÓÐÊý¾Ý
+    //inbuf_count ä¿è¯äº†ä¸€å®šä¼šæœ‰æ•°æ®
    if(p_tty->p_inbuf_tail == p_tty->in_buf + TTY_IN_BYTES)
    {
        p_tty->p_inbuf_tail= p_tty->in_buf;
@@ -99,7 +99,7 @@ char get_char_form_tty(TTY* p_tty)
 //put the data to buf
 int do_read(TTY* p_tty, char* buf)
 {
-    int cnt = 0;  //ÒÑ¶Á×Ö·û
+    int cnt = 0;  //å·²è¯»å­—ç¬¦
     //p_tty->inbuf_count = 0;
     char ch = get_char_form_tty(p_tty);
 

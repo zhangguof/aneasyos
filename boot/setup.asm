@@ -1,20 +1,20 @@
-;;loadÄ£¿é
-;;ÓÃÓÚÉèÖÃ»ù±¾²ÎÊıgdt£¬idt,ldt,·ÖÒ³µÈ
-;;½«ÄÚºËkernel¾µÏñÕûÀíÖÁ0x30000´¦
-;;Ìø×ªµ½ÄÚºË
+;;loadæ¨¡å—
+;;ç”¨äºè®¾ç½®åŸºæœ¬å‚æ•°gdtï¼Œidt,ldt,åˆ†é¡µç­‰
+;;å°†å†…æ ¸kernelé•œåƒæ•´ç†è‡³0x30000å¤„
+;;è·³è½¬åˆ°å†…æ ¸
 
 %include "pm.inc"
 ;org 0x90000
-LoadBaseAdr       equ  0x90000     ;load Ä£¿é»ùÖ·
-PageDirBase		equ	100000h	; Ò³Ä¿Â¼¿ªÊ¼µØÖ·:		1M
-PageTblBase		equ	101000h	; Ò³±í¿ªÊ¼µØÖ·:			1M + 4K
+LoadBaseAdr       equ  0x90000     ;load æ¨¡å—åŸºå€
+PageDirBase		equ	100000h	; é¡µç›®å½•å¼€å§‹åœ°å€:		1M
+PageTblBase		equ	101000h	; é¡µè¡¨å¼€å§‹åœ°å€:			1M + 4K
 
-BaseOfKernelFile	equ	 08000h	; KERNEL.BIN ±»¼ÓÔØµ½µÄÎ»ÖÃ ----  ¶ÎµØÖ·
-OffsetOfKernelFile	equ	     0h	; KERNEL.BIN ±»¼ÓÔØµ½µÄÎ»ÖÃ ---- Æ«ÒÆµØÖ·
+BaseOfKernelFile	equ	 08000h	; KERNEL.BIN è¢«åŠ è½½åˆ°çš„ä½ç½® ----  æ®µåœ°å€
+OffsetOfKernelFile	equ	     0h	; KERNEL.BIN è¢«åŠ è½½åˆ°çš„ä½ç½® ---- åç§»åœ°å€
 
 BaseOfKernelFilePhyAddr	equ	BaseOfKernelFile * 10h
-KernelEntryPoint	equ	030400h	; ×¢Òâ£º1¡¢±ØĞëÓë MAKEFILE ÖĞ²ÎÊı -Ttext µÄÖµÏàµÈ!!
-					;       2¡¢ÕâÊÇ¸öµØÖ·¶ø·Ç½ö½öÊÇ¸öÆ«ÒÆ£¬Èç¹û -Ttext µÄÖµÎª 0x400400£¬ÔòËüµÄÖµÒ²Ó¦¸ÃÊÇ 0x400400¡£
+KernelEntryPoint	equ	030400h	; æ³¨æ„ï¼š1ã€å¿…é¡»ä¸ MAKEFILE ä¸­å‚æ•° -Ttext çš„å€¼ç›¸ç­‰!!
+					;       2ã€è¿™æ˜¯ä¸ªåœ°å€è€Œéä»…ä»…æ˜¯ä¸ªåç§»ï¼Œå¦‚æœ -Ttext çš„å€¼ä¸º 0x400400ï¼Œåˆ™å®ƒçš„å€¼ä¹Ÿåº”è¯¥æ˜¯ 0x400400ã€‚
 
 
 ;; where kernel file is loaded
@@ -37,9 +37,9 @@ video_des  Descriptor  0x0b8000,    0xffff,      DA_DRW | DA_DPL3
 ;;gdt----------------------------------------------------------------------
 
 GdtLen equ  $ -gdt
-gdt_48 dw   GdtLen            ;½çÏŞ
-       dd   LoadBaseAdr + gdt; »ùÖ·
-;gdt Ñ¡Ôñ×Ó---------------------------------------------
+gdt_48 dw   GdtLen            ;ç•Œé™
+       dd   LoadBaseAdr + gdt; åŸºå€
+;gdt é€‰æ‹©å­---------------------------------------------
 code32_sel equ code32_des - gdt
 data_sel   equ data_des - gdt
 video_sel  equ video_des - gdt + SA_RPL3
@@ -63,17 +63,17 @@ start:
 	mov dh,1
 	int 10h
 
-; µÃµ½ÄÚ´æÊı
-	mov	ebx, 0			; ebx = ºóĞøÖµ, ¿ªÊ¼Ê±ĞèÎª 0
-	mov	di, _MemChkBuf		; es:di Ö¸ÏòÒ»¸öµØÖ··¶Î§ÃèÊö·û½á¹¹£¨Address Range Descriptor Structure£©
+; å¾—åˆ°å†…å­˜æ•°
+	mov	ebx, 0			; ebx = åç»­å€¼, å¼€å§‹æ—¶éœ€ä¸º 0
+	mov	di, _MemChkBuf		; es:di æŒ‡å‘ä¸€ä¸ªåœ°å€èŒƒå›´æè¿°ç¬¦ç»“æ„ï¼ˆAddress Range Descriptor Structureï¼‰
 .MemChkLoop:
 	mov	eax, 0E820h		; eax = 0000E820h
-	mov	ecx, 20			; ecx = µØÖ··¶Î§ÃèÊö·û½á¹¹µÄ´óĞ¡
+	mov	ecx, 20			; ecx = åœ°å€èŒƒå›´æè¿°ç¬¦ç»“æ„çš„å¤§å°
 	mov	edx, 0534D4150h		; edx = 'SMAP'
 	int	15h			; int 15h
 	jc	.MemChkFail
 	add	di, 20
-	inc	dword [_dwMCRNumber]	; dwMCRNumber = ARDS µÄ¸öÊı
+	inc	dword [_dwMCRNumber]	; dwMCRNumber = ARDS çš„ä¸ªæ•°
 	cmp	ebx, 0
 	jne	.MemChkLoop
 	jmp	.MemChkOK
@@ -85,20 +85,20 @@ start:
 
 	call SetupGdt
 
-; ¹ØÖĞ¶Ï
+; å…³ä¸­æ–­
 	cli
 
-; ´ò¿ªµØÖ·ÏßA20
+; æ‰“å¼€åœ°å€çº¿A20
 	in	al, 92h
 	or	al, 00000010b
 	out	92h, al
 
-; ×¼±¸ÇĞ»»µ½±£»¤Ä£Ê½
+; å‡†å¤‡åˆ‡æ¢åˆ°ä¿æŠ¤æ¨¡å¼
 	mov	eax, cr0
 	or	eax, 1
 	mov	cr0, eax
 
-; ÕæÕı½øÈë±£»¤Ä£Ê½
+; çœŸæ­£è¿›å…¥ä¿æŠ¤æ¨¡å¼
 	jmp	dword code32_sel:(LoadBaseAdr+start32)
 
 
@@ -117,7 +117,7 @@ SetupIdt:
 
 
 
-;;32Î»Ä£Ê½----------------------
+;;32ä½æ¨¡å¼----------------------
 [SECTION .s32]
 ALIGN 32
 [BITS 32]
@@ -150,7 +150,7 @@ start32:
 	mov	[BOOT_PARAM_ADDR + 8], eax ; phy-addr of kernel.bin
 
 
-;;;;;;½øÈëÄÚºË--------------------------
+;;;;;;è¿›å…¥å†…æ ¸--------------------------
 	jmp dword code32_sel:KernelEntryPoint
 ;;;;;;----------------------------------
 
@@ -159,7 +159,7 @@ start32:
 
 
 ; ------------------------------------------------------------------------
-; ÏÔÊ¾ AL ÖĞµÄÊı×Ö
+; æ˜¾ç¤º AL ä¸­çš„æ•°å­—
 ; ------------------------------------------------------------------------
 DispAL:
 	push	ecx
@@ -168,7 +168,7 @@ DispAL:
 
 	mov	edi, [dwDispPos]
 
-	mov	ah, 0Fh			; 0000b: ºÚµ×    1111b: °××Ö
+	mov	ah, 0Fh			; 0000b: é»‘åº•    1111b: ç™½å­—
 	mov	dl, al
 	shr	al, 4
 	mov	ecx, 2
@@ -196,11 +196,11 @@ DispAL:
 	pop	ecx
 
 	ret
-; DispAL ½áÊø-------------------------------------------------------------
+; DispAL ç»“æŸ-------------------------------------------------------------
 
 
 ; ------------------------------------------------------------------------
-; ÏÔÊ¾Ò»¸öÕûĞÎÊı
+; æ˜¾ç¤ºä¸€ä¸ªæ•´å½¢æ•°
 ; ------------------------------------------------------------------------
 DispInt:
 	mov	eax, [esp + 4]
@@ -218,7 +218,7 @@ DispInt:
 	mov	eax, [esp + 4]
 	call	DispAL
 
-	mov	ah, 07h			; 0000b: ºÚµ×    0111b: »Ò×Ö
+	mov	ah, 07h			; 0000b: é»‘åº•    0111b: ç°å­—
 	mov	al, 'h'
 	push	edi
 	mov	edi, [dwDispPos]
@@ -227,10 +227,10 @@ DispInt:
 	mov	[dwDispPos], edi
 	pop	edi
 	ret
-; DispInt ½áÊø------------------------------------------------------------
+; DispInt ç»“æŸ------------------------------------------------------------
 
 ; ------------------------------------------------------------------------
-; ÏÔÊ¾Ò»¸ö×Ö·û´®
+; æ˜¾ç¤ºä¸€ä¸ªå­—ç¬¦ä¸²
 ; ------------------------------------------------------------------------
 DispStr:
 	push	ebp
@@ -246,7 +246,7 @@ DispStr:
 	lodsb
 	test	al, al
 	jz	.2
-	cmp	al, 0Ah	; ÊÇ»Ø³µÂğ?
+	cmp	al, 0Ah	; æ˜¯å›è½¦å—?
 	jnz	.3
 	push	eax
 	mov	eax, edi
@@ -272,10 +272,10 @@ DispStr:
 	pop	ebx
 	pop	ebp
 	ret
-; DispStr ½áÊø------------------------------------------------------------
+; DispStr ç»“æŸ------------------------------------------------------------
 
 ; ------------------------------------------------------------------------
-; »»ĞĞ
+; æ¢è¡Œ
 ; ------------------------------------------------------------------------
 DispReturn:
 	push	szReturn
@@ -283,11 +283,11 @@ DispReturn:
 	add	esp, 4
 
 	ret
-; DispReturn ½áÊø---------------------------------------------------------
+; DispReturn ç»“æŸ---------------------------------------------------------
 
 
 ; ------------------------------------------------------------------------
-; ÄÚ´æ¿½±´£¬·Â memcpy
+; å†…å­˜æ‹·è´ï¼Œä»¿ memcpy
 ; ------------------------------------------------------------------------
 ; void* MemCpy(void* es:pDest, void* ds:pSrc, int iSize);
 ; ------------------------------------------------------------------------
@@ -303,19 +303,19 @@ MemCpy:
 	mov	esi, [ebp + 12]	; Source
 	mov	ecx, [ebp + 16]	; Counter
 .1:
-	cmp	ecx, 0		; ÅĞ¶Ï¼ÆÊıÆ÷
-	jz	.2		; ¼ÆÊıÆ÷ÎªÁãÊ±Ìø³ö
+	cmp	ecx, 0		; åˆ¤æ–­è®¡æ•°å™¨
+	jz	.2		; è®¡æ•°å™¨ä¸ºé›¶æ—¶è·³å‡º
 
-	mov	al, [ds:esi]		; ©·
-	inc	esi			; ©§
-					; ©Ç Öğ×Ö½ÚÒÆ¶¯
-	mov	byte [es:edi], al	; ©§
-	inc	edi			; ©¿
+	mov	al, [ds:esi]		; â”“
+	inc	esi			; â”ƒ
+					; â”£ é€å­—èŠ‚ç§»åŠ¨
+	mov	byte [es:edi], al	; â”ƒ
+	inc	edi			; â”›
 
-	dec	ecx		; ¼ÆÊıÆ÷¼õÒ»
-	jmp	.1		; Ñ­»·
+	dec	ecx		; è®¡æ•°å™¨å‡ä¸€
+	jmp	.1		; å¾ªç¯
 .2:
-	mov	eax, [ebp + 8]	; ·µ»ØÖµ
+	mov	eax, [ebp + 8]	; è¿”å›å€¼
 
 	pop	ecx
 	pop	edi
@@ -323,24 +323,24 @@ MemCpy:
 	mov	esp, ebp
 	pop	ebp
 
-	ret			; º¯Êı½áÊø£¬·µ»Ø
-; MemCpy ½áÊø-------------------------------------------------------------
+	ret			; å‡½æ•°ç»“æŸï¼Œè¿”å›
+; MemCpy ç»“æŸ-------------------------------------------------------------
 
 
-; ÏÔÊ¾ÄÚ´æĞÅÏ¢ --------------------------------------------------------------
+; æ˜¾ç¤ºå†…å­˜ä¿¡æ¯ --------------------------------------------------------------
 DispMemInfo:
 	push	esi
 	push	edi
 	push	ecx
 
 	mov	esi, MemChkBuf
-	mov	ecx, [dwMCRNumber]	;for(int i=0;i<[MCRNumber];i++) // Ã¿´ÎµÃµ½Ò»¸öARDS(Address Range Descriptor Structure)½á¹¹
+	mov	ecx, [dwMCRNumber]	;for(int i=0;i<[MCRNumber];i++) // æ¯æ¬¡å¾—åˆ°ä¸€ä¸ªARDS(Address Range Descriptor Structure)ç»“æ„
 .loop:					;{
-	mov	edx, 5			;	for(int j=0;j<5;j++)	// Ã¿´ÎµÃµ½Ò»¸öARDSÖĞµÄ³ÉÔ±£¬¹²5¸ö³ÉÔ±
-	mov	edi, ARDStruct		;	{			// ÒÀ´ÎÏÔÊ¾£ºBaseAddrLow£¬BaseAddrHigh£¬LengthLow£¬LengthHigh£¬Type
+	mov	edx, 5			;	for(int j=0;j<5;j++)	// æ¯æ¬¡å¾—åˆ°ä¸€ä¸ªARDSä¸­çš„æˆå‘˜ï¼Œå…±5ä¸ªæˆå‘˜
+	mov	edi, ARDStruct		;	{			// ä¾æ¬¡æ˜¾ç¤ºï¼šBaseAddrLowï¼ŒBaseAddrHighï¼ŒLengthLowï¼ŒLengthHighï¼ŒType
 .1:					;
 	push	dword [esi]		;
-	call	DispInt			;		DispInt(MemChkBuf[j*4]); // ÏÔÊ¾Ò»¸ö³ÉÔ±
+	call	DispInt			;		DispInt(MemChkBuf[j*4]); // æ˜¾ç¤ºä¸€ä¸ªæˆå‘˜
 	pop	eax			;
 	stosd				;		ARDStruct[j*4] = MemChkBuf[j*4];
 	add	esi, 4			;
@@ -373,44 +373,44 @@ DispMemInfo:
 	ret
 ; ---------------------------------------------------------------------------
 
-; Æô¶¯·ÖÒ³»úÖÆ --------------------------------------------------------------
+; å¯åŠ¨åˆ†é¡µæœºåˆ¶ --------------------------------------------------------------
 SetupPaging:
-	; ¸ù¾İÄÚ´æ´óĞ¡¼ÆËãÓ¦³õÊ¼»¯¶àÉÙPDEÒÔ¼°¶àÉÙÒ³±í
+	; æ ¹æ®å†…å­˜å¤§å°è®¡ç®—åº”åˆå§‹åŒ–å¤šå°‘PDEä»¥åŠå¤šå°‘é¡µè¡¨
 	xor	edx, edx
 	mov	eax, [dwMemSize]
-	mov	ebx, 400000h	; 400000h = 4M = 4096 * 1024, Ò»¸öÒ³±í¶ÔÓ¦µÄÄÚ´æ´óĞ¡
+	mov	ebx, 400000h	; 400000h = 4M = 4096 * 1024, ä¸€ä¸ªé¡µè¡¨å¯¹åº”çš„å†…å­˜å¤§å°
 	div	ebx
-	mov	ecx, eax	; ´ËÊ± ecx ÎªÒ³±íµÄ¸öÊı£¬Ò²¼´ PDE Ó¦¸ÃµÄ¸öÊı
+	mov	ecx, eax	; æ­¤æ—¶ ecx ä¸ºé¡µè¡¨çš„ä¸ªæ•°ï¼Œä¹Ÿå³ PDE åº”è¯¥çš„ä¸ªæ•°
 	test	edx, edx
 	jz	.no_remainder
-	inc	ecx		; Èç¹ûÓàÊı²»Îª 0 ¾ÍĞèÔö¼ÓÒ»¸öÒ³±í
+	inc	ecx		; å¦‚æœä½™æ•°ä¸ä¸º 0 å°±éœ€å¢åŠ ä¸€ä¸ªé¡µè¡¨
 .no_remainder:
-	push	ecx		; Ôİ´æÒ³±í¸öÊı
+	push	ecx		; æš‚å­˜é¡µè¡¨ä¸ªæ•°
 
-	; Îª¼ò»¯´¦Àí, ËùÓĞÏßĞÔµØÖ·¶ÔÓ¦ÏàµÈµÄÎïÀíµØÖ·. ²¢ÇÒ²»¿¼ÂÇÄÚ´æ¿Õ¶´.
+	; ä¸ºç®€åŒ–å¤„ç†, æ‰€æœ‰çº¿æ€§åœ°å€å¯¹åº”ç›¸ç­‰çš„ç‰©ç†åœ°å€. å¹¶ä¸”ä¸è€ƒè™‘å†…å­˜ç©ºæ´.
 
-	; Ê×ÏÈ³õÊ¼»¯Ò³Ä¿Â¼
+	; é¦–å…ˆåˆå§‹åŒ–é¡µç›®å½•
 	mov	ax, data_sel
 	mov	es, ax
-	mov	edi, PageDirBase	; ´Ë¶ÎÊ×µØÖ·Îª PageDirBase
+	mov	edi, PageDirBase	; æ­¤æ®µé¦–åœ°å€ä¸º PageDirBase
 	xor	eax, eax
 	mov	eax, PageTblBase | PG_P  | PG_USU | PG_RWW
 .1:
 	stosd
-	add	eax, 4096		; ÎªÁË¼ò»¯, ËùÓĞÒ³±íÔÚÄÚ´æÖĞÊÇÁ¬ĞøµÄ.
+	add	eax, 4096		; ä¸ºäº†ç®€åŒ–, æ‰€æœ‰é¡µè¡¨åœ¨å†…å­˜ä¸­æ˜¯è¿ç»­çš„.
 	loop	.1
 
-	; ÔÙ³õÊ¼»¯ËùÓĞÒ³±í
-	pop	eax			; Ò³±í¸öÊı
-	mov	ebx, 1024		; Ã¿¸öÒ³±í 1024 ¸ö PTE
+	; å†åˆå§‹åŒ–æ‰€æœ‰é¡µè¡¨
+	pop	eax			; é¡µè¡¨ä¸ªæ•°
+	mov	ebx, 1024		; æ¯ä¸ªé¡µè¡¨ 1024 ä¸ª PTE
 	mul	ebx
-	mov	ecx, eax		; PTE¸öÊı = Ò³±í¸öÊı * 1024
-	mov	edi, PageTblBase	; ´Ë¶ÎÊ×µØÖ·Îª PageTblBase
+	mov	ecx, eax		; PTEä¸ªæ•° = é¡µè¡¨ä¸ªæ•° * 1024
+	mov	edi, PageTblBase	; æ­¤æ®µé¦–åœ°å€ä¸º PageTblBase
 	xor	eax, eax
 	mov	eax, PG_P  | PG_USU | PG_RWW
 .2:
 	stosd
-	add	eax, 4096		; Ã¿Ò»Ò³Ö¸Ïò 4K µÄ¿Õ¼ä
+	add	eax, 4096		; æ¯ä¸€é¡µæŒ‡å‘ 4K çš„ç©ºé—´
 	loop	.2
 
 	mov	eax, PageDirBase
@@ -428,25 +428,25 @@ SetupPaging:
 
 
 ; InitKernel ---------------------------------------------------------------------------------
-; ½« KERNEL.BIN µÄÄÚÈİ¾­¹ıÕûÀí¶ÔÆëºó·Åµ½ĞÂµÄÎ»ÖÃ
+; å°† KERNEL.BIN çš„å†…å®¹ç»è¿‡æ•´ç†å¯¹é½åæ”¾åˆ°æ–°çš„ä½ç½®
 ; --------------------------------------------------------------------------------------------
-InitKernel:	; ±éÀúÃ¿Ò»¸ö Program Header£¬¸ù¾İ Program Header ÖĞµÄĞÅÏ¢À´È·¶¨°ÑÊ²Ã´·Å½øÄÚ´æ£¬·Åµ½Ê²Ã´Î»ÖÃ£¬ÒÔ¼°·Å¶àÉÙ¡£
+InitKernel:	; éå†æ¯ä¸€ä¸ª Program Headerï¼Œæ ¹æ® Program Header ä¸­çš„ä¿¡æ¯æ¥ç¡®å®šæŠŠä»€ä¹ˆæ”¾è¿›å†…å­˜ï¼Œæ”¾åˆ°ä»€ä¹ˆä½ç½®ï¼Œä»¥åŠæ”¾å¤šå°‘ã€‚
 	xor	esi, esi
-	mov	cx, word [BaseOfKernelFilePhyAddr + 2Ch]; ©· ecx <- pELFHdr->e_phnum
-	movzx	ecx, cx					; ©¿
+	mov	cx, word [BaseOfKernelFilePhyAddr + 2Ch]; â”“ ecx <- pELFHdr->e_phnum
+	movzx	ecx, cx					; â”›
 	mov	esi, [BaseOfKernelFilePhyAddr + 1Ch]	; esi <- pELFHdr->e_phoff
 	add	esi, BaseOfKernelFilePhyAddr		; esi <- OffsetOfKernel + pELFHdr->e_phoff
 .Begin:
 	mov	eax, [esi + 0]
 	cmp	eax, 0				; PT_NULL
 	jz	.NoAction
-	push	dword [esi + 010h]		; size	©·
-	mov	eax, [esi + 04h]		;	©§
-	add	eax, BaseOfKernelFilePhyAddr	;	©Ç ::memcpy(	(void*)(pPHdr->p_vaddr),
-	push	eax				; src	©§		uchCode + pPHdr->p_offset,
-	push	dword [esi + 08h]		; dst	©§		pPHdr->p_filesz;
-	call	MemCpy				;	©§
-	add	esp, 12				;	©¿
+	push	dword [esi + 010h]		; size	â”“
+	mov	eax, [esi + 04h]		;	â”ƒ
+	add	eax, BaseOfKernelFilePhyAddr	;	â”£ ::memcpy(	(void*)(pPHdr->p_vaddr),
+	push	eax				; src	â”ƒ		uchCode + pPHdr->p_offset,
+	push	dword [esi + 08h]		; dst	â”ƒ		pPHdr->p_filesz;
+	call	MemCpy				;	â”ƒ
+	add	esp, 12				;	â”›
 .NoAction:
 	add	esi, 020h			; esi += pELFHdr->e_phentsize
 	dec	ecx
@@ -464,13 +464,13 @@ LoadMessage:	dd "Now Loading...."
 LmsgLen equ $-LoadMessage
 ;;--------------------------------
 
-;;×Ö·û´®
+;;å­—ç¬¦ä¸²
 _szMemChkTitle:			db	"BaseAddrL BaseAddrH LengthLow LengthHigh   Type", 0Ah, 0
 _szRAMSize:			db	"RAM size:", 0
 _szReturn:			db	0Ah, 0
-;;±äÁ¿
+;;å˜é‡
 _dwMCRNumber:			dd	0	; Memory Check Result
-_dwDispPos:			dd	(80 * 6 + 0) * 2	; ÆÁÄ»µÚ 6 ĞĞ, µÚ 0 ÁĞ¡£
+_dwDispPos:			dd	(80 * 6 + 0) * 2	; å±å¹•ç¬¬ 6 è¡Œ, ç¬¬ 0 åˆ—ã€‚
 _dwMemSize:			dd	0
 _ARDStruct:			; Address Range Descriptor Structure
 	_dwBaseAddrLow:		dd	0
@@ -481,7 +481,7 @@ _ARDStruct:			; Address Range Descriptor Structure
 _MemChkBuf:	times	256	db	0
 ;
 
-;; ±£»¤Ä£Ê½ÏÂÊ¹ÓÃÕâĞ©·ûºÅ
+;; ä¿æŠ¤æ¨¡å¼ä¸‹ä½¿ç”¨è¿™äº›ç¬¦å·
 szMemChkTitle		equ	LoadBaseAdr + _szMemChkTitle
 szRAMSize		equ	LoadBaseAdr + _szRAMSize
 szReturn		equ	LoadBaseAdr + _szReturn
@@ -496,10 +496,10 @@ ARDStruct		equ	LoadBaseAdr + _ARDStruct
 	dwType		equ	LoadBaseAdr + _dwType
 MemChkBuf		equ	LoadBaseAdr + _MemChkBuf
 
-; ¶ÑÕ»¾ÍÔÚÊı¾İ¶ÎµÄÄ©Î²
+; å †æ ˆå°±åœ¨æ•°æ®æ®µçš„æœ«å°¾
 StackSpace:	times	1000h	db	0
-TopOfStack	equ	LoadBaseAdr + $	; Õ»¶¥
-; SECTION .data1 S½áÊø
+TopOfStack	equ	LoadBaseAdr + $	; æ ˆé¡¶
+; SECTION .data1 Sç»“æŸ
 
 
 

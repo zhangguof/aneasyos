@@ -19,10 +19,10 @@ extern u32         k_reenter;
 extern TASK task_table[];
 extern TASK user_proc_table[];
 extern irq_handler irq_table[];
-extern system_call sys_call_table[]; //系统调用句柄
+extern system_call sys_call_table[]; //绯荤粺璋冪敤鍙ユ焺
 
 //tty and console
-extern TTY       tty_table[];   //一个tty对应一个console
+extern TTY       tty_table[];   //涓�涓猼ty瀵瑰簲涓�涓猚onsole
 extern CONSOLE   console_table[];
 extern int nr_current_console;
 

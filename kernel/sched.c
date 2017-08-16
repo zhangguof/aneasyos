@@ -4,7 +4,7 @@
 void init_sched()
 {
 
-        //³õÊ¼»¯½ø³Ì±í
+        //åˆå§‹åŒ–è¿›ç¨‹è¡¨
     TASK*    p_task = task_table;
     PROCESS* p_proc = proc_table;
     char* p_task_stack = task_stack + STACK_SIZE_TOTAL;
@@ -25,7 +25,7 @@ void init_sched()
             continue;
         }
 
-        if(i<NR_TASKS) //ÈÎÎñ
+        if(i<NR_TASKS) //ä»»åŠ¡
         {
             p_task = task_table + i;
             privilege = PRIVILEGE_TASK;	/* Fill the LDT descriptors of each proc in GDT  */
@@ -49,7 +49,7 @@ void init_sched()
             p_proc->ldts[INDEX_LDT_C] = gdt[SEL_KERNEL_CS >>3];
             p_proc->ldts[INDEX_LDT_RW] = gdt[SEL_KERNEL_DS>>3];
 
-            p_proc->ldts[INDEX_LDT_C].attr1 = DA_C | privilege<<5 ;//¸Ä±ädpl
+            p_proc->ldts[INDEX_LDT_C].attr1 = DA_C | privilege<<5 ;//æ”¹å˜dpl
             p_proc->ldts[INDEX_LDT_RW].attr1 = DA_DRW | privilege<<5;
         }
         else
@@ -76,7 +76,7 @@ void init_sched()
         //p_proc->pid = i;   //pid
         //p_proc->ldt_sel = sel_ldt;
         //memcpy(&p_proc->ldts[0], &gdt[SEL_KERNEL_CS>>3], sizeof(DESCRIPTOR));
-        //p_proc->ldts[0].attr1 = DA_C | privilege<<5 ;//¸Ä±ädpl
+        //p_proc->ldts[0].attr1 = DA_C | privilege<<5 ;//æ”¹å˜dpl
 
         //memcpy(&p_proc->ldts[1], &gdt[SEL_KERNEL_DS>>3], sizeof(DESCRIPTOR));
         //p_proc->ldts[1].attr1 = DA_DRW | privilege<<5;
@@ -95,7 +95,7 @@ void init_sched()
 
         p_task_stack -= p_task->stacksize;
 
-        //°ó¶¨tty0
+        //ç»‘å®štty0
         p_proc->nr_tty = 0;
         p_proc->runtime = 0;
 
@@ -113,16 +113,16 @@ void init_sched()
         sel_ldt += (1<<3);
     }
 
-    //ÉèÖÃÊ±ÖÓÖĞ¶Ï
+    //è®¾ç½®æ—¶é’Ÿä¸­æ–­
     put_irq_hangler(CLOCK_IRQ, clock_handler);
-    enable_irq(CLOCK_IRQ);  //½ÓÊÜÊ±ÖÓÖĞ¶Ï
+    enable_irq(CLOCK_IRQ);  //æ¥å—æ—¶é’Ÿä¸­æ–­
 
-    //³õÊ¼»¯8253
+    //åˆå§‹åŒ–8253
     out_byte(TIMER_MODE, RATE_GENERATOR);
     out_byte(TIMER0, (u8)(TIMER_FREQ/HZ));
     out_byte(TIMER0, (u8)(TIMER_FREQ/HZ) >> 8);
 
-    //³õÊ¼»¯½ø³ÌÓÅÏÈ¼¶
+    //åˆå§‹åŒ–è¿›ç¨‹ä¼˜å…ˆçº§
 //    proc_table[0].ticks=proc_table[0].priority=20;
 //    proc_table[1].ticks=proc_table[1].priority=20;
 //
@@ -130,7 +130,7 @@ void init_sched()
 //    proc_table[3].ticks=proc_table[3].priority=10;
 //    proc_table[4].ticks=proc_table[4].priority=10;
 
-    //ttyÉèÖÃ
+    //ttyè®¾ç½®
     proc_table[NR_TASKS + 0].nr_tty = 0;
     proc_table[NR_TASKS + 1].nr_tty = 1;
     proc_table[NR_TASKS + 2].nr_tty = 1;
@@ -142,7 +142,7 @@ void schedule()
 {
     PROCESS* p;
     int MaxTicks=0;
-    while(!MaxTicks)  //Îª0
+    while(!MaxTicks)  //ä¸º0
     {
         for(p=proc_table;p<proc_table+NR_TASKS + NR_PROCS;p++)
         {
@@ -218,7 +218,7 @@ void* va2la(int pid, void* va)
 
 /************************************************************
 *        reset_msg
-*     Çå¿ÕÏûÏ¢
+*     æ¸…ç©ºæ¶ˆæ¯
 *************************************************************/
 void reset_msg(MESSAGE* p)
 {
@@ -227,7 +227,7 @@ void reset_msg(MESSAGE* p)
 
 /************************************************************
 *    block
-*     ÔÚp_flagsÉèÖÃºóµ÷ÓÃ block½«µ÷ÓÃschedule()
+*     åœ¨p_flagsè®¾ç½®åè°ƒç”¨ blockå°†è°ƒç”¨schedule()
 *************************************************************/
 void block(proc* p)
 {
@@ -245,8 +245,8 @@ void unblock(proc* p)
 }
 /*****************************************************************
 *   deadlock
-*   ¼ì²âËÀËø
-*    ¼ì²âÊÇ·ñ´æÔÚÒ»¸ö»·½á¹¹ a->b->c->a
+*   æ£€æµ‹æ­»é”
+*    æ£€æµ‹æ˜¯å¦å­˜åœ¨ä¸€ä¸ªç¯ç»“æ„ a->b->c->a
 ******************************************************************/
 static int deadlock(int src, int dest)
 {
@@ -281,10 +281,10 @@ static int deadlock(int src, int dest)
 }
 
 /**************************************************************
-* ÏûÏ¢·¢ËÍ  msg_send
-* @param current µ÷ÓÃÕß£¬sender
-* @param dest  Ä¿±ê½ø³Ì
-* @param m    ÏûÏ¢
+* æ¶ˆæ¯å‘é€  msg_send
+* @param current è°ƒç”¨è€…ï¼Œsender
+* @param dest  ç›®æ ‡è¿›ç¨‹
+* @param m    æ¶ˆæ¯
 
 * @return zero if success
 ***************************************************************/
@@ -296,7 +296,7 @@ static int deadlock(int src, int dest)
 
     assert(proc2pid(sender)!=dest);
 
-    //¼ì²âÊÇ·ñÓĞËÀËø
+    //æ£€æµ‹æ˜¯å¦æœ‰æ­»é”
     if(deadlock(proc2pid(sender),dest))
     {
         panic(">>DEADLOCK<< %s->%s",sender->p_name,p_dest->p_name);
@@ -315,7 +315,7 @@ static int deadlock(int src, int dest)
                   sizeof(MESSAGE));
 
         p_dest->p_msg = 0;
-        p_dest->p_flags &= ~RECEIVING; //dest ÊÕµ½ÁËÏûÏ¢
+        p_dest->p_flags &= ~RECEIVING; //dest æ”¶åˆ°äº†æ¶ˆæ¯
         p_dest->p_recvfrom = NO_TASK;
         unblock(p_dest);
 
@@ -329,14 +329,14 @@ static int deadlock(int src, int dest)
         assert(sender->p_recvfrom == NO_TASK);
         assert(sender->p_sendto == NO_TASK);
     }
-    else    //dest Ã»ÓĞÔÚµÈ´ıÏûÏ¢
+    else    //dest æ²¡æœ‰åœ¨ç­‰å¾…æ¶ˆæ¯
     {
         sender->p_flags |= SENDING ; //
         assert(sender->p_flags == SENDING);
         sender->p_sendto = dest;
         sender->p_msg = m;
 
-        //¼ÓÈësending ¶ÔÁĞ
+        //åŠ å…¥sending å¯¹åˆ—
         proc* p;
         if(p_dest->q_sending)
         {
@@ -351,9 +351,9 @@ static int deadlock(int src, int dest)
         }
 
 
-        sender->next_sending = 0;  //¶ÓÎ²
+        sender->next_sending = 0;  //é˜Ÿå°¾
 
-        block(sender); //×èÈûsender µ÷ÓÃscheduler()
+        block(sender); //é˜»å¡sender è°ƒç”¨scheduler()
 
         assert(sender->p_flags == SENDING);
         assert(sender->p_msg != 0);
@@ -384,7 +384,7 @@ static int deadlock(int src, int dest)
 
     assert(proc2pid(p_who_wanna_recv) != src);
 
-//ÖĞ¶ÏÏûÏ¢
+//ä¸­æ–­æ¶ˆæ¯
     if( (p_who_wanna_recv->has_int_msg) &&
        ((src == ANY) || (src == INTERRUPT)))
     {
@@ -444,7 +444,7 @@ static int deadlock(int src, int dest)
             proc* p = p_who_wanna_recv->q_sending;
             assert(p);  //p_from must have been appended to the queue
 
-            while(p)  //ÔÚqueueÖĞ²éÕÒp_from
+            while(p)  //åœ¨queueä¸­æŸ¥æ‰¾p_from
             {
                 assert(p_from->p_flags & SENDING);
                 if(proc2pid(p) == src)
@@ -529,12 +529,12 @@ static int deadlock(int src, int dest)
 
 
 /****************************************************************
-*       sys_sendrec      sendercµÄcÊµÏÖ
+*       sys_sendrec      sendercçš„cå®ç°
 ******************************************************************/
 
 int sys_sendrec(int function, int src_dest, MESSAGE* m, proc* p)
 {
-    assert(k_reenter==0);  //±»ring1¡«3µÄtaskµ÷ÓÃ
+    assert(k_reenter==0);  //è¢«ring1ï½3çš„taskè°ƒç”¨
     assert((src_dest >=0 && src_dest < NR_TASKS + NR_PROCS) ||
             src_dest == ANY ||
             src_dest == INTERRUPT);
@@ -542,7 +542,7 @@ int sys_sendrec(int function, int src_dest, MESSAGE* m, proc* p)
     int ret = 0;
     int caller=proc2pid(p);
 
-    MESSAGE* m1a = (MESSAGE*)va2la(caller,m); //Í¨¹ıled_sel ½øĞĞµØÖ·×ª»»
+    MESSAGE* m1a = (MESSAGE*)va2la(caller,m); //é€šè¿‡led_sel è¿›è¡Œåœ°å€è½¬æ¢
 
     m1a->source = caller;
 
@@ -572,7 +572,7 @@ int sys_sendrec(int function, int src_dest, MESSAGE* m, proc* p)
 /*****************************************************************
 *   send_recv ring1~3
 *   ipc syscall
-*   sendrec µÄÒ»¸ö°ü×°
+*   sendrec çš„ä¸€ä¸ªåŒ…è£…
 ******************************************************************/
 int send_recv(int function, int src_dest, MESSAGE* msg)
 {

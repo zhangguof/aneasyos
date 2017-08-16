@@ -1,13 +1,13 @@
 /*
 name:keybord.c
 By Tony
-¼üÅÌÇı¶¯´úÂë
-ttyÖĞÊ¹ÓÃ
+é”®ç›˜é©±åŠ¨ä»£ç 
+ttyä¸­ä½¿ç”¨
 */
 #include "MyOs.h"
 #include "keymap.h"
 
-static KB_INPUT kb_in;  //Ò»¸öÊäÈë»º´æ Ê¹ÓÃÑ­»·¶ÓÁĞÊµÏÖ
+static KB_INPUT kb_in;  //ä¸€ä¸ªè¾“å…¥ç¼“å­˜ ä½¿ç”¨å¾ªç¯é˜Ÿåˆ—å®ç°
 static	int	code_with_E0;
 static	int	shift_l;	/* l shift state */
 static	int	shift_r;	/* r shift state */
@@ -45,15 +45,15 @@ static u8 get_byte_from_kbuf()
 }
 
 
-//¿ÉÒÔÊ¶±ğ´ó²¿·Ö°´¼ü µ«ÊÇĞ¡¼üÅÌºÍnum lockµÈÃ»ÓĞ´¦Àí
+//å¯ä»¥è¯†åˆ«å¤§éƒ¨åˆ†æŒ‰é”® ä½†æ˜¯å°é”®ç›˜å’Œnum lockç­‰æ²¡æœ‰å¤„ç†
 void keyboard_read(TTY* p_tty)
 {
     u8 scan_code;
     char output[2];
     int make;  //true:make false : break
 
-    u32 key=0;  //ÓÃÒ»¸öÕûĞÍÀ´±íÊ¾Ò»¸ö¼ü
-    u32* keyrow; //Ö¸Ïòkeymap[]µÄÄ³ĞĞ
+    u32 key=0;  //ç”¨ä¸€ä¸ªæ•´å‹æ¥è¡¨ç¤ºä¸€ä¸ªé”®
+    u32* keyrow; //æŒ‡å‘keymap[]çš„æŸè¡Œ
     // memset(output,0,2);
 
     if(kb_in.count > 0)
@@ -61,7 +61,7 @@ void keyboard_read(TTY* p_tty)
         code_with_E0=0;
         scan_code = get_byte_from_kbuf();
 
-        //ÏÂÃæ¿ªÊ¼½âÎöÉ¨ÃèÂë
+        //ä¸‹é¢å¼€å§‹è§£ææ‰«æç 
 
         if(scan_code == 0xe1)
         {
@@ -88,7 +88,7 @@ void keyboard_read(TTY* p_tty)
             scan_code = get_byte_from_kbuf();
             //disp_int(scan_code);
 
-            /* PrintScreen ±»°´ÏÂ */
+            /* PrintScreen è¢«æŒ‰ä¸‹ */
             if (scan_code == 0x2A)
             {
                 if (get_byte_from_kbuf() == 0xE0)
@@ -100,7 +100,7 @@ void keyboard_read(TTY* p_tty)
                     }
                 }
             }
-            /* PrintScreen ±»ÊÍ·Å */
+            /* PrintScreen è¢«é‡Šæ”¾ */
             if (scan_code == 0xB7)
             {
                 if (get_byte_from_kbuf() == 0xE0)
@@ -112,7 +112,7 @@ void keyboard_read(TTY* p_tty)
                     }
                 }
             }
-            /* ²»ÊÇPrintScreen, ´ËÊ±scan_codeÎª0xE0½ô¸úµÄÄÇ¸öÖµ. */
+            /* ä¸æ˜¯PrintScreen, æ­¤æ—¶scan_codeä¸º0xE0ç´§è·Ÿçš„é‚£ä¸ªå€¼. */
             if (key == 0)
             {
                 code_with_E0 = 1;
@@ -123,7 +123,7 @@ void keyboard_read(TTY* p_tty)
         {
             make = (scan_code & FLAG_BREAK? FALSE : TRUE);
 
-            //¶¨Î»µ½ĞĞ
+            //å®šä½åˆ°è¡Œ
             keyrow = &keymap[(scan_code & 0x7f) * MAP_COLS];
             column = 0;
             if(shift_l || shift_r)
@@ -211,8 +211,8 @@ void init_keyboard()
     kb_in.p_head = kb_in.p_tail = kb_in.buf;
     alt_l=alt_r=ctrl_l=ctrl_r=shift_l=shift_r=0;
 
-    put_irq_hangler(KEYBOARD_IRQ, keyboard_handler); //ÉèÖÃ¼üÅÌÖĞ¶Ï
-    enable_irq(KEYBOARD_IRQ);  //¿ªÆô¼üÅÌÖĞ¶Ï
+    put_irq_hangler(KEYBOARD_IRQ, keyboard_handler); //è®¾ç½®é”®ç›˜ä¸­æ–­
+    enable_irq(KEYBOARD_IRQ);  //å¼€å¯é”®ç›˜ä¸­æ–­
 }
 
 

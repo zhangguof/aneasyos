@@ -1,19 +1,19 @@
 #ifndef _syscall_h
 #define _syscall_h
 
-//ÏµÍ³µ÷ÓÃµÄÒ»Ğ©º¯ÊıÔ­ĞÍ
+//ç³»ç»Ÿè°ƒç”¨çš„ä¸€äº›å‡½æ•°åŸå‹
 
 //syscall.c
-int sys_get_ticks();  //ÄÚ²¿ÊµÏÖ
+int sys_get_ticks();  //å†…éƒ¨å®ç°
 int sys_write(char *buf,int len,  int _unused,PROCESS* p_proc);
 int sys_sendrec(int function, int src_dest, MESSAGE* m, proc* p_proc);
 int sys_printx(int _unused1, int _unused2, char* s,  proc* p_proc);
 
 
 //syscall.asm
-void sys_call();  //ÖĞ¶ÏÈë¿Ú
+void sys_call();  //ä¸­æ–­å…¥å£
 
-int get_ticks();  //Íâ²¿½Ó¿Ú
+int get_ticks();  //å¤–éƒ¨æ¥å£
 void write(char *buf, int len);
 int sendrec(int function, int src_dest, MESSAGE* m);
 void printx(char* s);

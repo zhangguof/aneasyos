@@ -2,8 +2,8 @@
 #define _multiboot_h_
 
 
-//ÓÃÓÚÊ¹ÓÃmultibootµÄÍ·ÎÄ¼ş
-/* ¶àÆô¶¯ĞÅÏ¢½á¹¹ */
+//ç”¨äºä½¿ç”¨multibootçš„å¤´æ–‡ä»¶
+/* å¤šå¯åŠ¨ä¿¡æ¯ç»“æ„ */
 typedef unsigned short		multiboot_uint16_t;
 typedef unsigned int		multiboot_uint32_t;
 typedef unsigned long long	multiboot_uint64_t;

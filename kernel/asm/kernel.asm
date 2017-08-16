@@ -1,12 +1,12 @@
-;ÏµÍ³µÄÄÚºËÄ£¿é
+;ç³»ç»Ÿçš„å†…æ ¸æ¨¡å—
 ;;kernel.bin
 ;;nasm -f elf kernel.asm -o kernel.o
 ;;ld -s kernel.o -o kernel.bin
 
-;;ÖĞ¶ÏµÄ
+;;ä¸­æ–­çš„
 %include "sconst.inc"
 
-;;µ¼Èëº¯Êı
+;;å¯¼å…¥å‡½æ•°
 extern cstart
 extern main
 extern gdt_ptr
@@ -20,8 +20,8 @@ extern sys_call_table
 extern get_mbi
 
 
-;;µ¼³ö
-global _start   ;;µ¼³ö_start ,ÓÃÓÚldÊ¶±ğÈë¿Ú
+;;å¯¼å‡º
+global _start   ;;å¯¼å‡º_start ,ç”¨äºldè¯†åˆ«å…¥å£
 global restart
 global restart_reenter
 global TopOfStack
@@ -29,8 +29,8 @@ global save
 global sys_call
 
 [section .bss]
-StackSpace resb 2 * 1024  ;;2kbµÄÕ»¿Õ¼ä
-TopOfStack:               ;Õ»¶¥ ÄÚºËÕ»¿Õ¼ä
+StackSpace resb 2 * 1024  ;;2kbçš„æ ˆç©ºé—´
+TopOfStack:               ;æ ˆé¡¶ å†…æ ¸æ ˆç©ºé—´
 
 
 [section .text]
@@ -58,7 +58,7 @@ mulit_entry:
         ;mov ebx, 0x0b8000
         ;mov [ebx + (80*1+39)*2],ax
         ;jmp $
-        ; ½«esp ´Ó setup ÒÆ¶¯µ½kernel
+        ; å°†esp ä» setup ç§»åŠ¨åˆ°kernel
         mov esp, TopOfStack
 
         push ebx
@@ -69,9 +69,9 @@ mulit_entry:
         ;add esp,4
        ; hlt
         ;;test
-        ;sgdt [gdt_ptr]; ±£´ægdtĞÅÏ¢µ½gdt_ptr
+        ;sgdt [gdt_ptr]; ä¿å­˜gdtä¿¡æ¯åˆ°gdt_ptr
 
-        call cstart   ;;ÖØÖÃgdt£¬idt
+        call cstart   ;;é‡ç½®gdtï¼Œidt
 
         lgdt[gdt_ptr]
         lidt[idt_ptr];
@@ -118,18 +118,18 @@ save:
     push fs
     push gs
 
-    mov esi, edx ;;±£´æedx
+    mov esi, edx ;;ä¿å­˜edx
     mov dx, ss
     mov ds, dx
     mov es, dx
 
-    mov edx, esi ;;»Ö¸´edx
+    mov edx, esi ;;æ¢å¤edx
 
-    mov esi, esp ;esi = ½ø³Ì±íµÄÆğÊ¼µØÖ·£¬regsµÄ¿ªÊ¼´¦
+    mov esi, esp ;esi = è¿›ç¨‹è¡¨çš„èµ·å§‹åœ°å€ï¼Œregsçš„å¼€å§‹å¤„
     inc dword [k_reenter];
     cmp dword[k_reenter], 0
-    jne .1   ;;ÖĞ¶ÏÖØÈë
-    mov esp, TopOfStack; ;ÄÚºËÕ»
+    jne .1   ;;ä¸­æ–­é‡å…¥
+    mov esp, TopOfStack; ;å†…æ ¸æ ˆ
     push restart
     jmp [esi+RETADR-P_STACKBASE] ;return
 .1:
@@ -149,7 +149,7 @@ sys_call:
     push ecx
     push ebx
     call [sys_call_table+eax*4]  ;;
-    add esp, 4*4    ;;ËÄ¸ö²ÎÊı
+    add esp, 4*4    ;;å››ä¸ªå‚æ•°
 
     ;pop esi
 

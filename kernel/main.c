@@ -1,6 +1,6 @@
 /****************************
-*mian.c kernelÄ£¿éµÄÆğÊ¼º¯Êı
-*¸÷ÖÖ³õÊ¼»¯ÖĞ¶Ï==
+*mian.c kernelæ¨¡å—çš„èµ·å§‹å‡½æ•°
+*å„ç§åˆå§‹åŒ–ä¸­æ–­==
 ****************************/
 #include "MyOs.h"
 //#include "multiboot.h"
@@ -12,7 +12,7 @@ void get_mbi(multiboot_info_t* p_mbi)
     memcpy(&mbi,p_mbi,sizeof(multiboot_info_t));
 }
 
-//Ìî³ägdtÃèÊö·û±í
+//å¡«å……gdtæè¿°ç¬¦è¡¨
 void init_descriptor(DESCRIPTOR *p_desc, u32 base, u32 limit, u16 attribute)
 {
     p_desc->limit_low   = limit & 0x0ffff;
@@ -22,7 +22,7 @@ void init_descriptor(DESCRIPTOR *p_desc, u32 base, u32 limit, u16 attribute)
     p_desc->limit_high_attr2 = ((limit>>16) & 0x0f) | (attribute>>8) & 0xf0;
     p_desc->base_high   = (base>>24) & 0x0ff;
 }
-//ÓÉ¶ÎÃ÷Çó¾ø¶ÔµØÖ·
+//ç”±æ®µæ˜æ±‚ç»å¯¹åœ°å€
 u32 seg2phy(u16 seg)
 {
     DESCRIPTOR *p_desc = &gdt[seg>>3];
@@ -38,7 +38,7 @@ void cstart(void )
 
     //while(1){}
 
-    //¸´ÖÆgdt
+    //å¤åˆ¶gdt
 
 
     u16* p_gdt_limt=(u16 *)(&gdt_ptr[0]);
@@ -69,14 +69,14 @@ void cstart(void )
     *p_gdt_limt = GDT_SIZE * sizeof(DESCRIPTOR) - 1;
     *p_gdt_base = (u32)&gdt;
 
-    //³õÊ¼»¯idt
+    //åˆå§‹åŒ–idt
     u16* p_idt_limt = (u16*)(&idt_ptr[0]);
     u32* p_idt_base = (u32*)(&idt_ptr[2]);
 
     *p_idt_base = (u32) &idt;
     *p_idt_limt = IDT_SIZE * sizeof(GATE) - 1;
 
-    //³õÊ¼»¯gdtÖĞµÄ½ø³Ìldt
+    //åˆå§‹åŒ–gdtä¸­çš„è¿›ç¨‹ldt
     int i;
     PROCESS* p_proc = proc_table;
     u16 sel_ldt = ind_ldt_first<<3;
@@ -94,16 +94,16 @@ void cstart(void )
 
     }
 
-    //tss ³õÊ¼»¯
+    //tss åˆå§‹åŒ–
     memset(&tss, 0, sizeof(tss));
     tss.ss0 = SEL_KERNEL_DS;
     init_descriptor(&gdt[ind_tss],
                     vir2phys(seg2phy(SEL_KERNEL_DS),&tss),
                     sizeof(tss)-1,
                     DA_386TSS);
-    tss.iobase = sizeof(tss);//Ã»ÓĞioĞí¿É
+    tss.iobase = sizeof(tss);//æ²¡æœ‰ioè®¸å¯
 
-    init_prot();  //³õÊ¼»¯ÖĞ¶ÏÃÅ£¬ÏµÍ³µ÷ÓÃint0x90
+    init_prot();  //åˆå§‹åŒ–ä¸­æ–­é—¨ï¼Œç³»ç»Ÿè°ƒç”¨int0x90
 
     //  disp_str("---------\"init end\"--------\n");
 
@@ -124,7 +124,7 @@ void main()
     disp_str("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     disp_str("--------\"main\" begin------\n");
 
-    //½ø³Ìµ÷¶È³õÊ¼»¯
+    //è¿›ç¨‹è°ƒåº¦åˆå§‹åŒ–
     disp_str("--------\"init_sched\" begin------\n");
     init_sched();
     disp_str("--------\"init_sched\" end------\n");
@@ -138,13 +138,13 @@ void main()
     p_proc_ready = proc_table;
 
 
-    restart(); //ÔØÈëÈÎÎñ0 ring0--->ring1
+    restart(); //è½½å…¥ä»»åŠ¡0 ring0--->ring1
 
 
     while(1) {}
 }
 
-//taskA´úÂë
+//taskAä»£ç 
 void testA()
 {
 

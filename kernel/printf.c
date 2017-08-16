@@ -4,10 +4,10 @@ int printf(const char* fmt,...)
 {
     int i;
     char buf[256];
-    va_list arg=(va_list)((char*)(&fmt) + 4); //fmtÔÚÕ»ÖĞµÄ´óĞ¡Îª4
-    i=vsprintf(buf,fmt,arg);  //arg fmtÖ®ºóµÚÒ»¸ö²ÎÊıµÄµØÖ·
+    va_list arg=(va_list)((char*)(&fmt) + 4); //fmtåœ¨æ ˆä¸­çš„å¤§å°ä¸º4
+    i=vsprintf(buf,fmt,arg);  //arg fmtä¹‹åç¬¬ä¸€ä¸ªå‚æ•°çš„åœ°å€
     buf[i]='\0';
-    printx(buf);  //¸ÄÓÃprintxÏµÍ³µ÷ÓÃ
+    printx(buf);  //æ”¹ç”¨printxç³»ç»Ÿè°ƒç”¨
     //write(buf,i);
     return i;
 }

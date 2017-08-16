@@ -1,17 +1,17 @@
-//Ó²¼şÖĞ¶ÏµÄc´úÂë
-//°üÀ¨³õÊ¼»¯ÖĞ¶ÏÃèÊö·û
-//ÖĞ¶Ï´¦Àí´úÂë
+//ç¡¬ä»¶ä¸­æ–­çš„cä»£ç 
+//åŒ…æ‹¬åˆå§‹åŒ–ä¸­æ–­æè¿°ç¬¦
+//ä¸­æ–­å¤„ç†ä»£ç 
 
 #include "MyOs.h"
 
 
-/* ±¾ÎÄ¼şÄÚº¯ÊıÉùÃ÷ */
+/* æœ¬æ–‡ä»¶å†…å‡½æ•°å£°æ˜ */
 static void init_idt_desc(unsigned char vector, \
                           u8 desc_type, int_handle handler, \
                           unsigned char privilege);
 
 
-/* ÖĞ¶Ï´¦Àíº¯Êı */
+/* ä¸­æ–­å¤„ç†å‡½æ•° */
 void	divide_error();
 void	single_step_exception();
 void	nmi();
@@ -47,16 +47,16 @@ void	hwint15();
 
 
 /*======================================================================*
-           ×ªÒÆµ½ÖĞ¶Ï´¦Àí¹ı³ÌÊ±¶ÑÕ»Ê¹ÓÃ·½·¨
+           è½¬ç§»åˆ°ä¸­æ–­å¤„ç†è¿‡ç¨‹æ—¶å †æ ˆä½¿ç”¨æ–¹æ³•
                  init_prot
  *----------------------------------------------------------------------*
- ³õÊ¼»¯ IDT
+ åˆå§‹åŒ– IDT
  *======================================================================*/
 void init_prot()
 {
 	init_8259A();
 
-	// È«²¿³õÊ¼»¯³ÉÖĞ¶ÏÃÅ(Ã»ÓĞÏİÚåÃÅ)
+	// å…¨éƒ¨åˆå§‹åŒ–æˆä¸­æ–­é—¨(æ²¡æœ‰é™·é˜±é—¨)
 	init_idt_desc(INT_VECTOR_DIVIDE,	DA_386IGate, divide_error,		PRIVILEGE_KRNL);
 	init_idt_desc(INT_VECTOR_DEBUG,		DA_386IGate, single_step_exception,	PRIVILEGE_KRNL);
 	init_idt_desc(INT_VECTOR_NMI,		DA_386IGate, nmi,			PRIVILEGE_KRNL);
@@ -91,7 +91,7 @@ void init_prot()
 	init_idt_desc(INT_VECTOR_IRQ8 + 6,	DA_386IGate, hwint14,			PRIVILEGE_KRNL);
 	init_idt_desc(INT_VECTOR_IRQ8 + 7,	DA_386IGate, hwint15,			PRIVILEGE_KRNL);
 
-	//³õÊ¼»¯ÏµÍ³µ÷ÓÃµÄÖĞ¶ÏÃÅ
+	//åˆå§‹åŒ–ç³»ç»Ÿè°ƒç”¨çš„ä¸­æ–­é—¨
 	init_idt_desc(INT_VECTOR_SYS_CALL, DA_386IGate, sys_call,PRIVILEGE_USER);
 }
 
@@ -99,7 +99,7 @@ void init_prot()
 /*======================================================================*
                              init_idt_desc
  *----------------------------------------------------------------------*
- ³õÊ¼»¯ 386 ÖĞ¶ÏÃÅ
+ åˆå§‹åŒ– 386 ä¸­æ–­é—¨
  *======================================================================*/
 void init_idt_desc(unsigned char vector, u8 desc_type, int_handle handler, unsigned char privilege)
 {
@@ -116,16 +116,16 @@ void init_idt_desc(unsigned char vector, u8 desc_type, int_handle handler, unsig
 /*======================================================================*
                             exception_handler
  *----------------------------------------------------------------------*
- Òì³£´¦Àí
+ å¼‚å¸¸å¤„ç†
  *======================================================================*/
 
 void exception_handler(int vec_no, int err_code, int eip, int cs, int eflags)
 {
 	int i;
-	int text_color = 0x74; /* »Òµ×ºì×Ö */
+	int text_color = 0x74; /* ç°åº•çº¢å­— */
 /*	char err_description[][64] = {	"#DE Divide Error",
 					"#DB RESERVED",
-					"¡ª  NMI Interrupt",
+					"â€”  NMI Interrupt",
 					"#BP Breakpoint",
 					"#OF Overflow",
 					"#BR BOUND Range Exceeded",
@@ -138,7 +138,7 @@ void exception_handler(int vec_no, int err_code, int eip, int cs, int eflags)
 					"#SS Stack-Segment Fault",
 					"#GP General Protection",
 					"#PF Page Fault",
-					"¡ª  (Intel reserved. Do not use.)",
+					"â€”  (Intel reserved. Do not use.)",
 					"#MF x87 FPU Floating-Point Error (Math Fault)",
 					"#AC Alignment Check",
 					"#MC Machine Check",
@@ -159,7 +159,7 @@ void exception_handler(int vec_no, int err_code, int eip, int cs, int eflags)
     *q='\0';
 
     q=&err_description[2][0];
-    p="¡ª NMI Interrupt";
+    p="â€” NMI Interrupt";
     while((*p!=0))   *q++=*p++;
     *q='\0';
 
@@ -224,7 +224,7 @@ void exception_handler(int vec_no, int err_code, int eip, int cs, int eflags)
     *q='\0';
 
     q=&err_description[15][0];
-    p="¡ª (Intel reserved. Do not use.)";
+    p="â€” (Intel reserved. Do not use.)";
     while((*p!=0))   *q++=*p++;
     *q='\0';
 
@@ -249,7 +249,7 @@ void exception_handler(int vec_no, int err_code, int eip, int cs, int eflags)
     *q='\0';
 
 
-	/* Í¨¹ı´òÓ¡¿Õ¸ñµÄ·½Ê½Çå¿ÕÆÁÄ»µÄÇ°ÎåĞĞ£¬²¢°Ñ disp_pos ÇåÁã */
+	/* é€šè¿‡æ‰“å°ç©ºæ ¼çš„æ–¹å¼æ¸…ç©ºå±å¹•çš„å‰äº”è¡Œï¼Œå¹¶æŠŠ disp_pos æ¸…é›¶ */
 	//int tmp = disp_pos;
 	disp_pos = 0;
 	for(i=0;i<80*5;i++){

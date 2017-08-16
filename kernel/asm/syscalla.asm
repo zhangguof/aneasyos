@@ -1,16 +1,16 @@
-sys_call;;ÏµÍ³µ÷ÓÃµÄ»ã±à½Ó¿Ú
+sys_call;;ç³»ç»Ÿè°ƒç”¨çš„æ±‡ç¼–æ¥å£
 
 
 %include "sconst.inc"
 
-_NR_get_ticks   equ 0; Óëglobal.c ÖĞµÄsys_call_table¶ÔÓ¦
+_NR_get_ticks   equ 0; ä¸global.c ä¸­çš„sys_call_tableå¯¹åº”
 _NR_write       equ 1;
 _NR_sendrec     equ 2;
 _NR_printx      equ 3;
 
-INT_VECTOR_SYS_CALL equ 0x90  ;ÏµÍ³ÖĞ¶Ï
+INT_VECTOR_SYS_CALL equ 0x90  ;ç³»ç»Ÿä¸­æ–­
 
-;;µ¼³ö·ûºÏ
+;;å¯¼å‡ºç¬¦åˆ
 global get_ticks
 global write
 global sendrec

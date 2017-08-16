@@ -1,19 +1,19 @@
-//Ò»´ÎĞÔ°üº¬ĞèÒªµÄ¶¼ÎÄ¼ş
+//ä¸€æ¬¡æ€§åŒ…å«éœ€è¦çš„éƒ½æ–‡ä»¶
 
-#include "const.h"  //³£ÊıËµÃ÷
-#include "type.h"   //»ù±¾ÀàĞÍ¶¨Òå
+#include "const.h"  //å¸¸æ•°è¯´æ˜
+#include "type.h"   //åŸºæœ¬ç±»å‹å®šä¹‰
 #include "multiboot.h"
-#include "pm.h"   //intel±£»¤Ä£Ê½ÏÂµÄÒ»Ğ©Êı¾İ½á¹¹gdt idt tss µÈ
-#include "process.h"  //½ø³Ì½á¹¹pcbÉùÃ÷ ÈÎÎñÊıÁ¿ Õ»µÈ
-#include "tty.h"      //tty ½á¹¹¶¨Òå
-#include "console.h"  //¿ØÖÆÌ¨Êı¾İ½á¹¹¶¨Òå console.cÓÃµ½µÄÒ»Ğ©³£Á¿
-#include "hd.h"       //Ó²ÅÌÇı¶¯ ÓÃµ½µÄÒ»Ğ©Êı¾İ½á¹¹
-#include "string.h"   //¼¸¸ö×Ö·û²Ù×÷º¯ÊıµÄÔ­ĞÍ
-#include "klib.h"     //¸÷ÖÖ»ã±à ²»ÖªÃûº¯ÊıµÄÔ­ĞÍ
-#include "syscall.h"   //ÏµÍ³µ÷ÓÃ½Ó¿Úº¯ÊıÔ­ĞÍ
-#include "global.h"   //È«¾Ö±äÁ¿ÉùÃ÷ ´ó¶àÔÚglobal.cÖĞ¶¨Òå
-#include "sched.h"    //½ø³Ìµ÷¶ÈµÄ¼¸¸öº¯ÊıÔ­ĞÍ
-#include "keyboard.h"  //¼üÅÌ¶ÁÈ¡»º³å¶ÓÁĞ½á¹¹Ô­ĞÍ£¬Ò»Ğ©ÌØÊâ¼üÎ»µÄ³£Á¿¶¨Òå
+#include "pm.h"   //intelä¿æŠ¤æ¨¡å¼ä¸‹çš„ä¸€äº›æ•°æ®ç»“æ„gdt idt tss ç­‰
+#include "process.h"  //è¿›ç¨‹ç»“æ„pcbå£°æ˜ ä»»åŠ¡æ•°é‡ æ ˆç­‰
+#include "tty.h"      //tty ç»“æ„å®šä¹‰
+#include "console.h"  //æ§åˆ¶å°æ•°æ®ç»“æ„å®šä¹‰ console.cç”¨åˆ°çš„ä¸€äº›å¸¸é‡
+#include "hd.h"       //ç¡¬ç›˜é©±åŠ¨ ç”¨åˆ°çš„ä¸€äº›æ•°æ®ç»“æ„
+#include "string.h"   //å‡ ä¸ªå­—ç¬¦æ“ä½œå‡½æ•°çš„åŸå‹
+#include "klib.h"     //å„ç§æ±‡ç¼– ä¸çŸ¥åå‡½æ•°çš„åŸå‹
+#include "syscall.h"   //ç³»ç»Ÿè°ƒç”¨æ¥å£å‡½æ•°åŸå‹
+#include "global.h"   //å…¨å±€å˜é‡å£°æ˜ å¤§å¤šåœ¨global.cä¸­å®šä¹‰
+#include "sched.h"    //è¿›ç¨‹è°ƒåº¦çš„å‡ ä¸ªå‡½æ•°åŸå‹
+#include "keyboard.h"  //é”®ç›˜è¯»å–ç¼“å†²é˜Ÿåˆ—ç»“æ„åŸå‹ï¼Œä¸€äº›ç‰¹æ®Šé”®ä½çš„å¸¸é‡å®šä¹‰
 
 #include "assert.h"
 

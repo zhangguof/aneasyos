@@ -1,6 +1,6 @@
 /*
 *const.h
-*³£Á¿¶¨Òå
+*å¸¸é‡å®šä¹‰
 */
 
 #ifndef _const_h
@@ -28,7 +28,7 @@
 #define NR_CONSOLES	3	/* consoles */
 
 /* Process */
-//½ø³Ì×´Ì¬
+//è¿›ç¨‹çŠ¶æ€
 #define READY     0x0
 #define SENDING   0x02	/* set when proc trying to send */
 #define RECEIVING 0x04	/* set when proc trying to recv */
@@ -41,10 +41,10 @@
 #define TRUE 1
 #define FALSE 0
 
-//8259aµÄÖĞ¶Ï¿ØÖÆ¶Ë¿Ú
-#define INT_M_CTL   0x20  //ÖĞ¶Ï¿ØÖÆ master
-#define INT_M_CTLMASK 0x21 //¿ª¹Ø int n
-#define INT_S_CTL   0xA0   //´ÓÆ¬
+//8259açš„ä¸­æ–­æ§åˆ¶ç«¯å£
+#define INT_M_CTL   0x20  //ä¸­æ–­æ§åˆ¶ master
+#define INT_M_CTLMASK 0x21 //å¼€å…³ int n
+#define INT_S_CTL   0xA0   //ä»ç‰‡
 #define INT_S_CTLMASK 0xA1
 
 /* 8253/8254 PIT (Programmable Interval Timer) */
@@ -58,7 +58,7 @@
 
 /* AT keyboard */
 /* 8042 ports */
-//¼üÅÌi/o¶Ë¿Ú
+//é”®ç›˜i/oç«¯å£
 #define KB_DATA		0x60	/* I/O port for keyboard data
 					Read : Read Output Buffer
 					Write: Write Input Buffer(8042 Data&8048 Command) */
@@ -96,18 +96,18 @@
 
 
 
-/* GDT ºÍ IDT ÖĞÃèÊö·ûµÄ¸öÊı */
+/* GDT å’Œ IDT ä¸­æè¿°ç¬¦çš„ä¸ªæ•° */
 #define	GDT_SIZE	128
 #define	IDT_SIZE	256
 
-/* È¨ÏŞ */
+/* æƒé™ */
 #define	PRIVILEGE_KRNL	0
 #define	PRIVILEGE_TASK	1
 #define	PRIVILEGE_USER  3
 
 
 
-#define NR_SYS_CALL 4  //ÏµÍ³µ÷ÓÃµÄ¸öÊı
+#define NR_SYS_CALL 4  //ç³»ç»Ÿè°ƒç”¨çš„ä¸ªæ•°
 
 
 

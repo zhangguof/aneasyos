@@ -23,17 +23,17 @@ int getpid();
 
 
 void init_prot();
-//8259中断使能
+//8259涓柇浣胯兘
 void disable_irq(int i);
 void enable_irq(int i);
-//cpu中断使能 sti cli
+//cpu涓柇浣胯兘 sti cli
 void disable_int();
 void enable_int();
 
 void delay(int time);
 
 //main.c
-//一些任务或进程原型
+//涓�浜涗换鍔℃垨杩涚▼鍘熷瀷
 extern void Init();
 extern void testA();
 extern void testB();
@@ -49,7 +49,7 @@ u32 seg2phy(u16 seg);
 
 
 //trapsa.asm
-//中断句柄
+//涓柇鍙ユ焺
 void clock_handler(int irq);
 
 //keyboard.c

@@ -3,7 +3,7 @@
 int fork()
 {
     //milli_delay(0);
-    //printf("my pid is %d\n",p_proc_ready-proc_table); //??ÎªÊ²Ã´²»¼ÓÕâ¾ä¾Í´íÁËÀ²¡£¡£¡£¡£-_-
+    //printf("my pid is %d\n",p_proc_ready-proc_table); //??ä¸ºä»€ä¹ˆä¸åŠ è¿™å¥å°±é”™äº†å•¦ã€‚ã€‚ã€‚ã€‚-_-
     MESSAGE msg;
     msg.type = FORK;
     send_recv(BOTH, TASK_MM, &msg);

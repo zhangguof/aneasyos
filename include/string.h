@@ -13,7 +13,7 @@ int	memcmp(const void * s1, const void *s2, int n);
 int	strcmp(const char * s1, const char *s2);
 char*	strcat(char * s1, const char *s2);
 
-//ÓÃÓÚring0£¬ÎïÀíµØÖ·£¬ µ±Ç°ÏßĞÔµØÖ·ÎïÀíµØÖ·ÊÇÒ»ÑùµÄ
+//ç”¨äºring0ï¼Œç‰©ç†åœ°å€ï¼Œ å½“å‰çº¿æ€§åœ°å€ç‰©ç†åœ°å€æ˜¯ä¸€æ ·çš„
 #define	phys_copy	memcpy
 #define	phys_set	memset
 

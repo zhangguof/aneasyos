@@ -12,7 +12,7 @@ typedef void (*int_handle)();
 typedef void (*task_f)();
 typedef void (*irq_handler)(int iqr);
 
-typedef void* system_call;   //可以指向任意函数
+typedef void* system_call;   //鍙互鎸囧悜浠绘剰鍑芥暟
 
 
 

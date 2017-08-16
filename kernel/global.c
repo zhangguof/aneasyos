@@ -1,6 +1,6 @@
 /*
-*global.c 各种全局数据
-×
+*global.c 鍚勭鍏ㄥ眬鏁版嵁
+脳
 */
 #include "MyOs.h"
 
@@ -36,15 +36,15 @@ TASK user_proc_table[NR_PROCS]={{Init,   STACK_SIZE_INIT, "INIT"},
 
 //TASK task_table[NR_TASKS] = {testA, STACK_SIZE_TESTA,"testA"};
 
-irq_handler irq_table[NR_IRQ];   //iqr处理句柄
+irq_handler irq_table[NR_IRQ];   //iqr澶勭悊鍙ユ焺
 
- //系统调用句柄
+ //绯荤粺璋冪敤鍙ユ焺
 system_call sys_call_table[NR_SYS_CALL]={sys_get_ticks,
                                          sys_write,sys_sendrec,
                                          sys_printx} ;
 
 //tty and console
-TTY       tty_table[NR_CONSOLES];   //一个tty对应一个console
+TTY       tty_table[NR_CONSOLES];   //涓�涓猼ty瀵瑰簲涓�涓猚onsole
 CONSOLE   console_table[NR_CONSOLES];
 int nr_current_console;
 

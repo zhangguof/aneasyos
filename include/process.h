@@ -1,29 +1,29 @@
 /*
 * process.h
-*½ø³Ì±íµÄÊı¾İ½á¹¹ pcb
+*è¿›ç¨‹è¡¨çš„æ•°æ®ç»“æ„ pcb
 *
 */
 #include "type.h"
 
-typedef struct s_stackframe {	/* proc_ptr points here				¡ü Low			*/
-	u32	gs;		/* ©·						©¦			*/
-	u32	fs;		/* ©§						©¦			*/
-	u32	es;		/* ©§						©¦			*/
-	u32	ds;		/* ©§						©¦			*/
-	u32	edi;		/* ©§						©¦			*/
-	u32	esi;		/* ©Ç pushed by save()				©¦			*/
-	u32	ebp;		/* ©§						©¦			*/
-	u32	kernel_esp;	/* <- 'popad' will ignore it			©¦			*/
-	u32	ebx;		/* ©§						¡üÕ»´Ó¸ßµØÖ·ÍùµÍµØÖ·Ôö³¤*/
-	u32	edx;		/* ©§						©¦			*/
-	u32	ecx;		/* ©§						©¦			*/
-	u32	eax;		/* ©¿						©¦			*/
-	u32	retaddr;	/* return address for assembly code save()	©¦			*/
-	u32	eip;		/*  ©·						©¦			*/
-	u32	cs;		/*  ©§						©¦			*/
-	u32	eflags;		/*  ©Ç these are pushed by CPU during interrupt	©¦			*/
-	u32	esp;		/*  ©§						©¦			*/
-	u32	ss;		/*  ©¿						©ÛHigh			*/
+typedef struct s_stackframe {	/* proc_ptr points here				â†‘ Low			*/
+	u32	gs;		/* â”“						â”‚			*/
+	u32	fs;		/* â”ƒ						â”‚			*/
+	u32	es;		/* â”ƒ						â”‚			*/
+	u32	ds;		/* â”ƒ						â”‚			*/
+	u32	edi;		/* â”ƒ						â”‚			*/
+	u32	esi;		/* â”£ pushed by save()				â”‚			*/
+	u32	ebp;		/* â”ƒ						â”‚			*/
+	u32	kernel_esp;	/* <- 'popad' will ignore it			â”‚			*/
+	u32	ebx;		/* â”ƒ						â†‘æ ˆä»é«˜åœ°å€å¾€ä½åœ°å€å¢é•¿*/
+	u32	edx;		/* â”ƒ						â”‚			*/
+	u32	ecx;		/* â”ƒ						â”‚			*/
+	u32	eax;		/* â”›						â”‚			*/
+	u32	retaddr;	/* return address for assembly code save()	â”‚			*/
+	u32	eip;		/*  â”“						â”‚			*/
+	u32	cs;		/*  â”ƒ						â”‚			*/
+	u32	eflags;		/*  â”£ these are pushed by CPU during interrupt	â”‚			*/
+	u32	esp;		/*  â”ƒ						â”‚			*/
+	u32	ss;		/*  â”›						â”·High			*/
 }STACK_FRAME;
 
 
@@ -32,7 +32,7 @@ typedef struct s_proc {
 
 	u16 ldt_sel;               /* gdt selector giving ldt base and limit */
 
-	//±¾µØÃèÊö·û±í
+	//æœ¬åœ°æè¿°ç¬¦è¡¨
 	DESCRIPTOR ldts[LDT_SIZE]; /* local descriptors for code and data */
 
     int ticks;                 /* remained ticks */
@@ -46,9 +46,9 @@ typedef struct s_proc {
 				    * process flags.
 				    * A proc is runnable iff p_flags==0
 				    */
-    MESSAGE * p_msg;  //Ö¸ÏòÏûÏ¢ÌåµÄÖ¸Õë
-	int p_recvfrom;   //ÏëÒª´ÓË­ÄÇÀï½ÓÊÜÏûÏ¢
-	int p_sendto;     //ÏëÒª·¢ËÍÏûÏ¢µÄ¶ÔÏó
+    MESSAGE * p_msg;  //æŒ‡å‘æ¶ˆæ¯ä½“çš„æŒ‡é’ˆ
+	int p_recvfrom;   //æƒ³è¦ä»è°é‚£é‡Œæ¥å—æ¶ˆæ¯
+	int p_sendto;     //æƒ³è¦å‘é€æ¶ˆæ¯çš„å¯¹è±¡
 
 	int has_int_msg;/**
 				    * nonzero if an INTERRUPT occurred when
@@ -66,9 +66,9 @@ typedef struct s_proc {
     int p_parent; /**< pid of parent process */
 
 	int exit_status; /**< for parent */
-	int runtime;   //½ø³ÌÔËĞĞÊ±¼ä ms
+	int runtime;   //è¿›ç¨‹è¿è¡Œæ—¶é—´ ms
 
-	int nr_tty;  //½ø³Ì¶ÔÓ¦µÄtty
+	int nr_tty;  //è¿›ç¨‹å¯¹åº”çš„tty
 }PROCESS;
 
 typedef PROCESS proc;
