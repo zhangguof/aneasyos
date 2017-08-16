@@ -14,9 +14,9 @@ LD				 =$(c_path)/i386-elf-ld
 CC				 =$(c_path)/i386-elf-gcc
 ASMBFLAGS		 = -I boot/include/
 ASMKFLAGS		 = -I include/ -f elf
-LDFLAGS			 = -s -Ttext $(ENTRYPOINT)
+LDFLAGS			 = -Ttext $(ENTRYPOINT) -m elf_i386
 #LDFLAGS			 = -elf -T link.ld --oformat elf32-i386
-CFLAGS			 = -I include/ -c -fno-builtin -fno-stack-protector
+CFLAGS			 = -I include/ -c -fno-builtin -fno-stack-protector -m32
 
 #program
 BOOT			 = boot/boot.bin boot/setup.bin

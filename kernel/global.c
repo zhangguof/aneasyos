@@ -24,11 +24,13 @@ TASK task_table[NR_TASKS] = {{task_tty,STACK_SIZE_TTY,"tty"},
                              {task_sys,STACK_SIZE_SYS,"sys"},
                              {task_hd, STACK_SIZE_HD, "HD"},
                              {task_fs, STACK_SIZE_FS,  "FS"},
-                             {task_mm, STACK_SIZE_MM,  "MM"}};
+                             {task_mm, STACK_SIZE_MM,  "MM"},
+                         	};
 TASK user_proc_table[NR_PROCS]={{Init,   STACK_SIZE_INIT, "INIT"},
                                 {testA, STACK_SIZE_TESTA,"testA"},
                                 {testB, STACK_SIZE_TESTB,"testB"},
-                                {testC, STACK_SIZE_TESTC,"testC"}};
+                                {testC, STACK_SIZE_TESTC,"testC"},
+                            	};
 
 
 
