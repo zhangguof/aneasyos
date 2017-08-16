@@ -7,11 +7,11 @@ ENTRYPOFFSET	= 0X400
 #Mulit boot use
 MBENTRYPOINT     =0x100400
 #ENTRYPOINT		= $(MBENTRYPOINT)
-c_path=/opt/local/bin
+c_path=/usr/i686-elf-tools-windows/bin
 #flag,compiler
 ASM				 =nasm
-LD				 =ld
-CC				 =gcc
+LD				 =$(c_path)/i686-elf-ld.exe
+CC				 =$(c_path)/i686-elf-gcc.exe
 ASMBFLAGS		 = -I boot/include/
 ASMKFLAGS		 = -I include/ -f elf32
 LDFLAGS			 = -Ttext $(ENTRYPOINT) -m elf_i386
