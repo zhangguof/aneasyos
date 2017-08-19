@@ -34,6 +34,7 @@ static void cleanup( proc * proc);
 	u16 child_ldt_sel = p->ldt_sel;
 	//do copy process struc from parent
 	parent_p = &proc_table[pid];
+	while(!(parent_p->p_flags & RECEIVING));
 	parent_flags = parent_p->p_flags;
 	*p = *parent_p;
 	p->p_flags = DOING_FORK;
@@ -110,12 +111,6 @@ static void cleanup( proc * proc);
 	msg2fs.PID = child_pid;
 	send_recv(BOTH, TASK_FS, &msg2fs);
 */
-	p->p_msg = parent_p->p_msg;
-	p->p_recvfrom = parent_p->p_recvfrom;
-	p->p_sendto = parent_p->p_sendto;
-	p->q_sending = parent_p->q_sending;
-	p->next_sending = parent_p->next_sending;
-	p->p_flags = parent_p->p_flags;
 	/* child PID will be returned to the parent proc */
 	mm_msg.PID = child_pid;
 
@@ -124,7 +119,7 @@ static void cleanup( proc * proc);
 	m.type = SYSCALL_RET;
 	m.RETVAL = 0;
 	m.PID = 0;
-	//p->p_flags = parent_flags; //恢复父进程flags
+	p->p_flags = parent_flags; //恢复父进程flags
 	send_recv(SEND,child_pid,&m);
 
 	return 0;
