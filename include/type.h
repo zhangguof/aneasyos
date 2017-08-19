@@ -7,6 +7,7 @@ typedef unsigned short u16;
 typedef unsigned char u8;
 typedef unsigned int t_port;
 typedef	int			 t_bool;
+typedef unsigned int size_t;
 
 typedef void (*int_handle)();
 typedef void (*task_f)();
