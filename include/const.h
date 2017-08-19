@@ -35,6 +35,7 @@
 #define WAITING   0x08	/* set when proc waiting for the child to terminate */
 #define HANGING   0x10	/* set when proc exits without being waited by parent */
 #define FREE_SLOT 0x20	/* set when proc table entry is not used*/
+#define DOING_FORK 0x40	/* set when child proc doing fork*/
 
 
 
