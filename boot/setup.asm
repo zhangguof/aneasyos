@@ -151,7 +151,9 @@ start32:
 
 
 ;;;;;;进入内核--------------------------
-	jmp dword code32_sel:KernelEntryPoint
+	;jmp dword code32_sel:KernelEntryPoint
+	mov eax, [dwElfEnterPoint]
+	jmp eax
 ;;;;;;----------------------------------
 
 	jmp $
@@ -431,6 +433,8 @@ SetupPaging:
 ; 将 KERNEL.BIN 的内容经过整理对齐后放到新的位置
 ; --------------------------------------------------------------------------------------------
 InitKernel:	; 遍历每一个 Program Header，根据 Program Header 中的信息来确定把什么放进内存，放到什么位置，以及放多少。
+	mov eax, [BaseOfKernelFilePhyAddr + 18h]; eax <-pELFHdr->e_entry
+	mov [dwElfEnterPoint], eax; elf 入口地址
 	xor	esi, esi
 	mov	cx, word [BaseOfKernelFilePhyAddr + 2Ch]; ┓ ecx <- pELFHdr->e_phnum
 	movzx	ecx, cx					; ┛
@@ -480,6 +484,8 @@ _ARDStruct:			; Address Range Descriptor Structure
 	_dwType:		dd	0
 _MemChkBuf:	times	256	db	0
 ;
+_dwElfEnterPoint: dd 0
+
 
 ;; 保护模式下使用这些符号
 szMemChkTitle		equ	LoadBaseAdr + _szMemChkTitle
@@ -495,6 +501,7 @@ ARDStruct		equ	LoadBaseAdr + _ARDStruct
 	dwLengthHigh	equ	LoadBaseAdr + _dwLengthHigh
 	dwType		equ	LoadBaseAdr + _dwType
 MemChkBuf		equ	LoadBaseAdr + _MemChkBuf
+dwElfEnterPoint equ LoadBaseAdr + _dwElfEnterPoint
 
 ; 堆栈就在数据段的末尾
 StackSpace:	times	1000h	db	0
