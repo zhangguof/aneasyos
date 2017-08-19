@@ -2,7 +2,7 @@
 
 void task_sys()
 {
-    //printf("The task_sys begin\n");
+    printf("The task_sys begin ticks:%d\n",get_ticks());
     MESSAGE msg;
     while(1)
     {
@@ -20,7 +20,8 @@ void task_sys()
 			send_recv(SEND, src, &msg);
 			break;
         default:
-            panic("unknow msg type");
+            printf("msg_type:%d\n", msg.type);
+            panic("[task_sys]unknow msg type");
             break;
 
         }
