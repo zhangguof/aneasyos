@@ -123,7 +123,7 @@ void exception_handler(int vec_no, int err_code, int eip, int cs, int eflags)
 {
 	int i;
 	int text_color = 0x74; /* 灰底红字 */
-/*	char err_description[][64] = {	"#DE Divide Error",
+	char err_description[][64] = {	"#DE Divide Error",
 					"#DB RESERVED",
 					"—  NMI Interrupt",
 					"#BP Breakpoint",
@@ -142,112 +142,8 @@ void exception_handler(int vec_no, int err_code, int eip, int cs, int eflags)
 					"#MF x87 FPU Floating-Point Error (Math Fault)",
 					"#AC Alignment Check",
 					"#MC Machine Check",
-					"#XF SIMD Floating-Point Exception"
+					"#XF SIMD Floating-Point Exception",
 				};
-   */
-    char *p,*q;
-    char err_description[20][64];
-
-    q=&err_description[0][0];
-    p="#DE Divide Error";
-    while((*p!=0))   *q++=*p++;
-    *q='\0';
-
-    q=&err_description[1][0];
-    p="#DB RESERVED";
-    while((*p!=0))   *q++=*p++;
-    *q='\0';
-
-    q=&err_description[2][0];
-    p="— NMI Interrupt";
-    while((*p!=0))   *q++=*p++;
-    *q='\0';
-
-    q=&err_description[3][0];
-    p="#BP Breakpoint";
-    while((*p!=0))   *q++=*p++;
-    *q='\0';
-
-    q=&err_description[4][0];
-    p="#OF Overflow";
-    while((*p!=0))   *q++=*p++;
-    *q='\0';
-
-    q=&err_description[5][0];
-    p="#BR BOUND Range Exceeded";
-    while((*p!=0))   *q++=*p++;
-    *q='\0';
-
-    q=&err_description[6][0];
-    p="#UD Invalid Opcode (Undefined Opcode)";
-    while((*p!=0))   *q++=*p++;
-    *q='\0';
-
-    q=&err_description[7][0];
-    p="#NM Device Not Available (No Math Coprocessor)";
-    while((*p!=0))   *q++=*p++;
-    *q='\0';
-
-    q=&err_description[8][0];
-    p="#DF Double Fault";
-    while((*p!=0))   *q++=*p++;
-    *q='\0';
-
-    q=&err_description[9][0];
-    p="    Coprocessor Segment Overrun (reserved)";
-    while((*p!=0))   *q++=*p++;
-    *q='\0';
-
-    q=&err_description[10][0];
-    p="#TS Invalid TSS";
-    while((*p!=0))   *q++=*p++;
-    *q='\0';
-
-    q=&err_description[11][0];
-    p="#NP Segment Not Present";
-    while((*p!=0))   *q++=*p++;
-    *q='\0';
-
-    q=&err_description[12][0];
-    q="#SS Stack-Segment Fault";
-    while((*p!=0))   *q++=*p++;
-    *q='\0';
-
-    q=&err_description[13][0];
-    p="#GP General Protection^_^";
-    while((*p!=0))   *q++=*p++;
-    *q='\0';
-
-    q=&err_description[14][0];
-    p="#PF Page Fault";
-    while((*p!=0))   *q++=*p++;
-    *q='\0';
-
-    q=&err_description[15][0];
-    p="— (Intel reserved. Do not use.)";
-    while((*p!=0))   *q++=*p++;
-    *q='\0';
-
-    q=&err_description[16][0];
-    p="#MF x87 FPU Floating-Point Error (Math Fault)";
-    while((*p!=0))   *q++=*p++;
-    *q='\0';
-
-    q=&err_description[17][0];
-    p="#AC Alignment Check";
-    while((*p!=0))   *q++=*p++;
-    *q='\0';
-
-    q=&err_description[18][0];
-    p="#MC Machine Check";
-    while((*p!=0))   *q++=*p++;
-    *q='\0';
-
-    q=&err_description[19][0];
-    p="#XF SIMD Floating-Point Exception";
-    while((*p!=0))   *q++=*p++;
-    *q='\0';
-
 
 	/* 通过打印空格的方式清空屏幕的前五行，并把 disp_pos 清零 */
 	//int tmp = disp_pos;
@@ -255,14 +151,10 @@ void exception_handler(int vec_no, int err_code, int eip, int cs, int eflags)
 	for(i=0;i<80*5;i++){
 		disp_str(" ");
 	}
-	//disp_str("the old disp_pos is:");
-	//disp_int(tmp);
-	//disp_str("\n");
 
-	disp_pos = 0;
+	disp_pos = 80*2;
 	disp_color_str("Exception! --> ", text_color);
 	disp_color_str(err_description[vec_no], text_color);
-	//disp_color_str(test, text_color);
 
 	disp_color_str("\n\n", text_color);
 	disp_color_str("EFLAGS:", text_color);
