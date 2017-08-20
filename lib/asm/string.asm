@@ -7,10 +7,10 @@
 [SECTION .text]
 
 ; 导出函数
-global	memcpy
-global  memset
-global  strcpy
-global  strlen
+;global	memcpy
+;global  memset
+;global  strcpy
+;global  strlen
 
 
 ; ------------------------------------------------------------------------
