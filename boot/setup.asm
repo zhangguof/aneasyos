@@ -4,7 +4,19 @@
 ;;跳转到内核
 
 %include "pm.inc"
+
+;extern disp_int
+
+extern print_hello
+extern DispInt
+extern DispStr
+extern DispReturn
+
+;;导出
+;;global DispStr   ;
+
 ;org 0x90000
+LOADSEG equ 0x9000;
 LoadBaseAdr       equ  0x90000     ;load 模块基址
 PageDirBase		equ	100000h	; 页目录开始地址:		1M
 PageTblBase		equ	101000h	; 页表开始地址:			1M + 4K
@@ -26,27 +38,13 @@ KERNEL_FILE_PHY_ADDR	equ	KERNEL_FILE_SEG * 0x10
 BOOT_PARAM_ADDR		equ	0x900
 BOOT_PARAM_MAGIC	equ	0xB007
 
+;; 符号地址从0开始
+[SECTION .s16]
+[BITS 16]
+jmp starts16
 
-jmp start
 
-;;gdt--------------------------------------------------------------------
-gdt:        Descriptor        0,         0,      0
-code32_des  Descriptor        0,   0xfffff,      DA_32 | DA_CR | DA_LIMIT_4K
-data_des    Descriptor        0,   0xfffff,      DA_32 |DA_DRW | DA_LIMIT_4K
-video_des  Descriptor  0x0b8000,    0xffff,      DA_DRW | DA_DPL3
-;;gdt----------------------------------------------------------------------
-
-GdtLen equ  $ -gdt
-gdt_48 dw   GdtLen            ;界限
-       dd   LoadBaseAdr + gdt; 基址
-;gdt 选择子---------------------------------------------
-code32_sel equ code32_des - gdt
-data_sel   equ data_des - gdt
-video_sel  equ video_des - gdt + SA_RPL3
-
-;;-------------------------------------------------------
-
-start:
+starts16:
     mov ax,cs
     mov	ax, cs
 	mov	ds, ax
@@ -99,10 +97,7 @@ start:
 	mov	cr0, eax
 
 ; 真正进入保护模式
-	jmp	dword code32_sel:(LoadBaseAdr+start32)
-
-
-
+	jmp	dword code32_sel:start32 ;; 调整链接脚本,32位符号地址从0x90000+sizeof(.16)开始
 
 
 SetupGdt:
@@ -113,11 +108,40 @@ SetupIdt:
     nop
     ret
 
+;;gdt--------------------------------------------------------------------
+gdt:        Descriptor        0,         0,      0
+code32_des  Descriptor        0,   0xfffff,      DA_32 | DA_CR | DA_LIMIT_4K
+data_des    Descriptor        0,   0xfffff,      DA_32 |DA_DRW | DA_LIMIT_4K
+video_des   Descriptor  0x0b8000,    0xffff,      DA_DRW | DA_DPL3
+;;gdt----------------------------------------------------------------------
 
+GdtLen equ  $ - gdt
+gdt_48 dw   GdtLen            ;界限
+       dd   LoadBaseAdr + gdt; 基址
+;gdt 选择子---------------------------------------------
+code32_sel equ code32_des - gdt
+data_sel   equ data_des - gdt
+video_sel  equ video_des - gdt + SA_RPL3
 
+;;-------------------------------------------------------
+;;;data---------------------------
+LoadMessage:	dd "Now Loading...."
+LmsgLen equ $-LoadMessage
+
+_dwMCRNumber:			dd	0	; Memory Check Result
+_dwDispPos:			dd	(80 * 6 + 0) * 2	; 屏幕第 6 行, 第 0 列。
+_dwMemSize:			dd	0
+_ARDStruct:			; Address Range Descriptor Structure
+	_dwBaseAddrLow:		dd	0
+	_dwBaseAddrHigh:	dd	0
+	_dwLengthLow:		dd	0
+	_dwLengthHigh:		dd	0
+	_dwType:		dd	0
+_MemChkBuf:	times	256	db	0
 
 
 ;;32位模式----------------------
+;; 符号地址从0x90000+sizof(.16)开始
 [SECTION .s32]
 ALIGN 32
 [BITS 32]
@@ -132,11 +156,18 @@ start32:
 	mov	ss, ax
 	mov	esp, TopOfStack
 
+	;call print_hello
+
+	pushad
 	push szMemChkTitle
 	call DispStr
 	add esp, 4
+	popad
 
 	call DispMemInfo
+
+	
+
 	call SetupPaging
 	call InitKernel
 
@@ -149,141 +180,17 @@ start32:
 	add	eax, KERNEL_FILE_OFF
 	mov	[BOOT_PARAM_ADDR + 8], eax ; phy-addr of kernel.bin
 
-
+	;;call print_hello
 ;;;;;;进入内核--------------------------
-	jmp dword code32_sel:KernelEntryPoint
+	;jmp dword code32_sel:KernelEntryPoint
+	mov eax, [dwElfEnterPoint]
+	jmp eax
 ;;;;;;----------------------------------
 
 	jmp $
 
 
 
-; ------------------------------------------------------------------------
-; 显示 AL 中的数字
-; ------------------------------------------------------------------------
-DispAL:
-	push	ecx
-	push	edx
-	push	edi
-
-	mov	edi, [dwDispPos]
-
-	mov	ah, 0Fh			; 0000b: 黑底    1111b: 白字
-	mov	dl, al
-	shr	al, 4
-	mov	ecx, 2
-.begin:
-	and	al, 01111b
-	cmp	al, 9
-	ja	.1
-	add	al, '0'
-	jmp	.2
-.1:
-	sub	al, 0Ah
-	add	al, 'A'
-.2:
-	mov	[gs:edi], ax
-	add	edi, 2
-
-	mov	al, dl
-	loop	.begin
-	;add	edi, 2
-
-	mov	[dwDispPos], edi
-
-	pop	edi
-	pop	edx
-	pop	ecx
-
-	ret
-; DispAL 结束-------------------------------------------------------------
-
-
-; ------------------------------------------------------------------------
-; 显示一个整形数
-; ------------------------------------------------------------------------
-DispInt:
-	mov	eax, [esp + 4]
-	shr	eax, 24
-	call	DispAL
-
-	mov	eax, [esp + 4]
-	shr	eax, 16
-	call	DispAL
-
-	mov	eax, [esp + 4]
-	shr	eax, 8
-	call	DispAL
-
-	mov	eax, [esp + 4]
-	call	DispAL
-
-	mov	ah, 07h			; 0000b: 黑底    0111b: 灰字
-	mov	al, 'h'
-	push	edi
-	mov	edi, [dwDispPos]
-	mov	[gs:edi], ax
-	add	edi, 4
-	mov	[dwDispPos], edi
-	pop	edi
-	ret
-; DispInt 结束------------------------------------------------------------
-
-; ------------------------------------------------------------------------
-; 显示一个字符串
-; ------------------------------------------------------------------------
-DispStr:
-	push	ebp
-	mov	ebp, esp
-	push	ebx
-	push	esi
-	push	edi
-
-	mov	esi, [ebp + 8]	; pszInfo
-	mov	edi, [dwDispPos]
-	mov	ah, 0Fh
-.1:
-	lodsb
-	test	al, al
-	jz	.2
-	cmp	al, 0Ah	; 是回车吗?
-	jnz	.3
-	push	eax
-	mov	eax, edi
-	mov	bl, 160
-	div	bl
-	and	eax, 0FFh
-	inc	eax
-	mov	bl, 160
-	mul	bl
-	mov	edi, eax
-	pop	eax
-	jmp	.1
-.3:
-	mov	[gs:edi], ax
-	add	edi, 2
-	jmp	.1
-
-.2:
-	mov	[dwDispPos], edi
-
-	pop	edi
-	pop	esi
-	pop	ebx
-	pop	ebp
-	ret
-; DispStr 结束------------------------------------------------------------
-
-; ------------------------------------------------------------------------
-; 换行
-; ------------------------------------------------------------------------
-DispReturn:
-	push	szReturn
-	call	DispStr			;printf("\n");
-	add	esp, 4
-
-	ret
-; DispReturn 结束---------------------------------------------------------
 
 
 ; ------------------------------------------------------------------------
@@ -339,15 +246,22 @@ DispMemInfo:
 	mov	edx, 5			;	for(int j=0;j<5;j++)	// 每次得到一个ARDS中的成员，共5个成员
 	mov	edi, ARDStruct		;	{			// 依次显示：BaseAddrLow，BaseAddrHigh，LengthLow，LengthHigh，Type
 .1:					;
+	pushad
 	push	dword [esi]		;
 	call	DispInt			;		DispInt(MemChkBuf[j*4]); // 显示一个成员
 	pop	eax			;
+	popad
+
 	stosd				;		ARDStruct[j*4] = MemChkBuf[j*4];
 	add	esi, 4			;
 	dec	edx			;
-	cmp	edx, 0			;
+	cmp	edx, 0		;
 	jnz	.1			;	}
+
+	pushad
 	call	DispReturn		;	printf("\n");
+	popad
+
 	cmp	dword [dwType], 1	;	if(Type == AddressRangeMemory) // AddressRangeMemory : 1, AddressRangeReserved : 2
 	jne	.2			;	{
 	mov	eax, [dwBaseAddrLow]	;
@@ -358,14 +272,21 @@ DispMemInfo:
 .2:					;	}
 	loop	.loop			;}
 					;
+	pushad
 	call	DispReturn		;printf("\n");
+	popad
+
+	pushad
 	push	szRAMSize		;
 	call	DispStr			;printf("RAM size:");
 	add	esp, 4			;
-					;
+	popad				;
+
+	pushad
 	push	dword [dwMemSize]	;
 	call	DispInt			;DispInt(MemSize);
 	add	esp, 4			;
+	popad
 
 	pop	ecx
 	pop	edi
@@ -431,6 +352,8 @@ SetupPaging:
 ; 将 KERNEL.BIN 的内容经过整理对齐后放到新的位置
 ; --------------------------------------------------------------------------------------------
 InitKernel:	; 遍历每一个 Program Header，根据 Program Header 中的信息来确定把什么放进内存，放到什么位置，以及放多少。
+	mov eax, [BaseOfKernelFilePhyAddr + 18h]; eax <-pELFHdr->e_entry
+	mov [dwElfEnterPoint], eax; elf 入口地址
 	xor	esi, esi
 	mov	cx, word [BaseOfKernelFilePhyAddr + 2Ch]; ┓ ecx <- pELFHdr->e_phnum
 	movzx	ecx, cx					; ┛
@@ -455,13 +378,11 @@ InitKernel:	; 遍历每一个 Program Header，根据 Program Header 中的信�
 	ret
 ; InitKernel ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-[section .data1]
+[section .data]
 align 32
 DATA:
 
-;;;data---------------------------
-LoadMessage:	dd "Now Loading...."
-LmsgLen equ $-LoadMessage
+
 ;;--------------------------------
 
 ;;字符串
@@ -469,22 +390,17 @@ _szMemChkTitle:			db	"BaseAddrL BaseAddrH LengthLow LengthHigh   Type", 0Ah, 0
 _szRAMSize:			db	"RAM size:", 0
 _szReturn:			db	0Ah, 0
 ;;变量
-_dwMCRNumber:			dd	0	; Memory Check Result
-_dwDispPos:			dd	(80 * 6 + 0) * 2	; 屏幕第 6 行, 第 0 列。
-_dwMemSize:			dd	0
-_ARDStruct:			; Address Range Descriptor Structure
-	_dwBaseAddrLow:		dd	0
-	_dwBaseAddrHigh:	dd	0
-	_dwLengthLow:		dd	0
-	_dwLengthHigh:		dd	0
-	_dwType:		dd	0
-_MemChkBuf:	times	256	db	0
+
 ;
+_dwElfEnterPoint: dd 0
+
 
 ;; 保护模式下使用这些符号
-szMemChkTitle		equ	LoadBaseAdr + _szMemChkTitle
-szRAMSize		equ	LoadBaseAdr + _szRAMSize
-szReturn		equ	LoadBaseAdr + _szReturn
+szMemChkTitle		equ	_szMemChkTitle
+szRAMSize		equ	_szRAMSize
+szReturn		equ	_szReturn
+
+;;引用16位段数据
 dwDispPos		equ	LoadBaseAdr + _dwDispPos
 dwMemSize		equ	LoadBaseAdr + _dwMemSize
 dwMCRNumber		equ	LoadBaseAdr + _dwMCRNumber
@@ -496,9 +412,12 @@ ARDStruct		equ	LoadBaseAdr + _ARDStruct
 	dwType		equ	LoadBaseAdr + _dwType
 MemChkBuf		equ	LoadBaseAdr + _MemChkBuf
 
+dwElfEnterPoint equ _dwElfEnterPoint
+[section .stack]
+align 32
 ; 堆栈就在数据段的末尾
 StackSpace:	times	1000h	db	0
-TopOfStack	equ	LoadBaseAdr + $	; 栈顶
+TopOfStack	equ	$	; 栈顶
 ; SECTION .data1 S结束
 
 

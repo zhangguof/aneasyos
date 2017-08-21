@@ -5,13 +5,29 @@
  *======================================================================*/
 static char* i2a(int val, int base, char ** ps)
 {
-	int m = val % base;
-	int q = val / base;
-	if (q) {
-		i2a(q, base, ps);
+	char *p = *ps;
+	char *p_buf = p;
+	int m;
+	if(val==0)
+	{
+		*p++ = '0';
+		*p = '\0';
+		return *ps;
 	}
-	*(*ps)++ = (m < 10) ? (m + '0') : (m - 10 + 'A');
-
+	
+	while(val)
+	{
+		m = val % base;
+		val /= base;
+		*p++ = (m < 10) ? (m + '0') : (m - 10 + 'A');
+	}
+	*p-- = '\0';
+	for(char c;p_buf<p;--p,++p_buf)
+	{
+		c = *p_buf;
+		*p_buf = *p;
+		*p = c;
+	}
 	return *ps;
 }
 
@@ -62,12 +78,13 @@ static char* i2a(int val, int base, char ** ps)
 		}
 
 		char * q = inner_buf;
-		memset(q, 0, sizeof(inner_buf));
+		//memset(q, 0, sizeof(inner_buf));
 
 		switch (*fmt) {
 		case 'c':
 			*q++ = *((char*)p_next_arg);
 			p_next_arg += 4;
+			*q='\0';
 			break;
 		case 'x':
 			m = *((int*)p_next_arg);
@@ -85,15 +102,16 @@ static char* i2a(int val, int base, char ** ps)
 			break;
 		case 's':
 			strcpy(q, (*((char**)p_next_arg)));
-			q += strlen(*((char**)p_next_arg));
+			//q += strlen(*((char**)p_next_arg));
 			p_next_arg += 4;
 			break;
 		default:
 			break;
 		}
 
-		int k;
-		for (k = 0; k < ((align_nr > strlen(inner_buf)) ? (align_nr - strlen(inner_buf)) : 0); k++) {
+		int buf_len = strlen(inner_buf);
+		int cs_n = ((align_nr > buf_len) ? (align_nr - buf_len) : 0);
+		for (int k = 0; k < cs_n; k++) {
 			*p++ = cs;
 		}
 		q = inner_buf;

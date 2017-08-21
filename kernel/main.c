@@ -249,12 +249,12 @@ void testC()
  *****************************************************************************/
 void task_fs()
 {
-    printf("Task FS begins.\n");
+    printf("Task FS begins. ticks:%d\n",get_ticks());
 
     /* open the device: hard disk */
     MESSAGE driver_msg;
     driver_msg.type = DEV_OPEN;
-    send_rec(BOTH, TASK_HD, &driver_msg);
+    //send_rec(BOTH, TASK_HD, &driver_msg);
 
     MESSAGE msg;
    // milli_delay(20000);
@@ -273,7 +273,7 @@ void task_fs()
             send_rec(SEND, src, &msg);
             break;
         default:
-            panic("unknow msg type");
+            panic("[fs]unknow msg type:%d",msg.type);
             break;
 
         }
@@ -285,7 +285,8 @@ void task_fs()
 
 void Init()
 {
-    printf("Init is begin");
+    printf("Init is begin ticks:%d\n",get_ticks());
+    //printf("Init is begin!\n");
     //spin("test end");
     int pid = fork();
 

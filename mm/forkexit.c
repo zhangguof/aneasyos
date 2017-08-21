@@ -14,7 +14,9 @@ static void cleanup( proc * proc);
  int do_fork()
 {
 	/* find a free slot in proc_table */
-	 proc* p = proc_table;
+	proc* p = proc_table;
+	proc* parent_p = 0;
+	int parent_flags;
 	int i;
 	for (i = 0; i < NR_TASKS + NR_PROCS; i++,p++)
 		if (p->p_flags == FREE_SLOT)
@@ -30,9 +32,16 @@ static void cleanup( proc * proc);
 	/* duplicate the process table */
 	int pid = mm_msg.source;
 	u16 child_ldt_sel = p->ldt_sel;
-	*p = proc_table[pid];
+	//do copy process struc from parent
+	parent_p = &proc_table[pid];
+	while(!(parent_p->p_flags & RECEIVING));
+	parent_flags = parent_p->p_flags;
+	*p = *parent_p;
+	p->p_flags = DOING_FORK;
 	p->ldt_sel = child_ldt_sel;
 	p->p_parent = pid;
+	p->pid = child_pid;
+	
 	sprintf(p->p_name, "%s_%d", proc_table[pid].p_name, child_pid);
 
 	/* duplicate the process: T, D & S */
@@ -83,6 +92,8 @@ static void cleanup( proc * proc);
 	       child_base, caller_T_base, caller_T_size);
 	/* child is a copy of the parent */
 	phys_copy((void*)child_base, (void*)caller_T_base, caller_T_size);
+	//*p = *parent_p;
+
 
 	/* child's LDT */
 	init_descriptor(&p->ldts[INDEX_LDT_C],
@@ -108,6 +119,7 @@ static void cleanup( proc * proc);
 	m.type = SYSCALL_RET;
 	m.RETVAL = 0;
 	m.PID = 0;
+	p->p_flags = parent_flags; //恢复父进程flags
 	send_recv(SEND,child_pid,&m);
 
 	return 0;

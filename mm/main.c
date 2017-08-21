@@ -14,8 +14,10 @@ static void init_mm();
  *****************************************************************************/
  void task_mm()
 {
+	printf("init the task_mm ticks:%d\n",get_ticks());
 	init_mm();
-   // printf("The task_mm begin\n");
+    
+    printf("The task_mm begin\n");
 	while (1) {
 		send_recv(RECEIVE, ANY, &mm_msg);
 		int src = mm_msg.source;

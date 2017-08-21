@@ -73,13 +73,13 @@ void init_sched()
 
         }
 
-        //p_proc->pid = i;   //pid
-        //p_proc->ldt_sel = sel_ldt;
-        //memcpy(&p_proc->ldts[0], &gdt[SEL_KERNEL_CS>>3], sizeof(DESCRIPTOR));
-        //p_proc->ldts[0].attr1 = DA_C | privilege<<5 ;//改变dpl
+        p_proc->pid = i;   //pid
+        // p_proc->ldt_sel = sel_ldt;
+        // memcpy(&p_proc->ldts[0], &gdt[SEL_KERNEL_CS>>3], sizeof(DESCRIPTOR));
+        // p_proc->ldts[0].attr1 = DA_C | privilege<<5 ;//改变dpl
 
-        //memcpy(&p_proc->ldts[1], &gdt[SEL_KERNEL_DS>>3], sizeof(DESCRIPTOR));
-        //p_proc->ldts[1].attr1 = DA_DRW | privilege<<5;
+        // memcpy(&p_proc->ldts[1], &gdt[SEL_KERNEL_DS>>3], sizeof(DESCRIPTOR));
+        // p_proc->ldts[1].attr1 = DA_DRW | privilege<<5;
 
         p_proc->regs.cs = (0 & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl;
         p_proc->regs.ds = (8 & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl;
@@ -142,6 +142,7 @@ void schedule()
 {
     PROCESS* p;
     int MaxTicks=0;
+    proc* tp = p_proc_ready;
     while(!MaxTicks)  //为0
     {
         for(p=proc_table;p<proc_table+NR_TASKS + NR_PROCS;p++)
@@ -152,6 +153,7 @@ void schedule()
                 {
                     MaxTicks = p->ticks;
                     p_proc_ready = p;
+                    //printf("change to:%d,name:%s\n", p->pid,p->p_name);
                 }
             }
 
@@ -167,6 +169,15 @@ void schedule()
             }
         }
 
+    }
+    if(tp!=p_proc_ready)
+    {
+        // printf("new process:%d,pre_pid:%d,cur_ticks:%d\n", p_proc_ready->pid,tp->pid,sys_get_ticks());
+        // for(p=proc_table;p<proc_table+NR_TASKS + NR_PROCS;p++)
+        // {
+        //     if(p->p_flags != FREE_SLOT)
+        //         printf("pid:%d,ticks:%d\n", p->pid,p->ticks);
+        // }
     }
 }
 
@@ -295,6 +306,8 @@ static int deadlock(int src, int dest)
     proc* p_dest = proc_table + dest;
 
     assert(proc2pid(sender)!=dest);
+    // printf("==[msg_send]cur_pid:%d,cur_pname:%s,dest:%d,msg_type:%d\n",
+    //        current->pid,current->p_name,dest,m->type);
 
     //检测是否有死锁
     if(deadlock(proc2pid(sender),dest))
@@ -383,6 +396,8 @@ static int deadlock(int src, int dest)
     int copyok = 0;
 
     assert(proc2pid(p_who_wanna_recv) != src);
+    // printf("===[msg_recevie]cur_pid:%d,cur_pname:%s,src:%d,msg_type:%d\n", 
+    //         current->pid,current->p_name,src,m->type);
 
 //中断消息
     if( (p_who_wanna_recv->has_int_msg) &&
@@ -578,6 +593,7 @@ int send_recv(int function, int src_dest, MESSAGE* msg)
 {
 
     int ret=0;
+    //printf("in send_recv:func:%x,src_dest:%d,msg_type:%d,msg_src:%d\n", function,src_dest,msg->type,msg->source);
     if(function == RECEIVE)
     {
         memset(msg,0,sizeof(MESSAGE));
@@ -585,10 +601,14 @@ int send_recv(int function, int src_dest, MESSAGE* msg)
     switch(function)
     {
     case BOTH:
+              //printf("func:%x,src_dest:%d,msg_type:%d,msg_src:%d\n", function,src_dest,msg->type,msg->source);
+
               ret = sendrec(SEND, src_dest, msg);
               if(ret == 0)  //fix a bug here =_= why not 0==ret
               {
+                  //printf("func:%x,src_dest:%d,msg_type:%d,msg_src:%d\n", function,src_dest,msg->type,msg->source);
                   ret=sendrec(RECEIVE, src_dest, msg);
+                  //printf("func:%x,src_dest:%d,msg_type:%d,msg_src:%d\n", function,src_dest,msg->type,msg->source);
               }
               break;
     case SEND:

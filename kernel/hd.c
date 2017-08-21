@@ -121,6 +121,7 @@ void hd_handler(int irq)
 //main loop of hd driver
 void task_hd()
 {
+    printf("init task_hd: ticks:%d\n", get_ticks());
     MESSAGE msg;
     init_hd();
     while(1)

@@ -24,9 +24,10 @@ KERNEL			 = kernel/kernel.bin
 
 CSRC= $(wildcard kernel/*.c lib/*.c mm/*.c)
 ASRC= $(wildcard kernel/asm/*.asm lib/asm/*.asm)
-tmpOBJS= $(addsuffix .o,$(basename $(ASRC) $(CSRC)))
-OBJS1 = $(filter-out kernel/asm/kernel.o, $(tmpOBJS))
-OBJS = kernel/asm/kernel.o $(OBJS1)
+#tmpOBJS= $(addsuffix .o,$(basename $(ASRC) $(CSRC)))
+#OBJS1 = $(filter-out kernel/asm/kernel.o, $(tmpOBJS))
+#OBJS = kernel/asm/kernel.o $(OBJS1)
+OBJS= $(addsuffix .o,$(basename $(ASRC) $(CSRC)))
 
 
 bootlen			 = 1
