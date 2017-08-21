@@ -183,6 +183,7 @@ start32:
 	;;call print_hello
 ;;;;;;进入内核--------------------------
 	;jmp dword code32_sel:KernelEntryPoint
+	call print_hello
 	mov eax, [dwElfEnterPoint]
 	jmp eax
 ;;;;;;----------------------------------
