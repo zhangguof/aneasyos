@@ -1,0 +1,1 @@
+gdbgui "kernel/kernel.bin" -g /opt/local/bin/i386-elf-gdb
