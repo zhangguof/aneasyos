@@ -1,1 +1,1 @@
-bochs -q -f bochsrc.bxrc
+bochs -q -f bochs/bochsrc.bxrc
