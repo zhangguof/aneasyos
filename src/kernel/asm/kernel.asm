@@ -60,7 +60,7 @@ mulit_entry:
         ;jmp $
         ; 将esp 从 setup 移动到kernel
         mov esp, TopOfStack
-        hlt
+        ;hlt
 
         push ebx
         call get_mbi

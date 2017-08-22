@@ -1,4 +1,5 @@
 
+#include "elf.h"
 #define VIDEO_ADDR (0x0b8000)
 #define LINE_CHAR_NUM (80)
 #define BITWIDTH (8)
@@ -107,6 +108,16 @@ void DispInt(unsigned int a)
 	DispStr(p);	
 }
 
+void* memcpy(void *p_dst, void *p_src, u32 size)
+{
+	char* p_d = (char*) p_dst;
+	char* p_src_end = ((char*)p_src + size);
+	while (p_src!=p_src_end)
+	{
+		*p_d++ = *((char*)p_src++);
+	}
+}
+
 u32 DispMemInfo(ARDStruct *p_buf,int McrNum)
 {
 	u32 max_mem_size = 0;
@@ -132,15 +143,7 @@ u32 DispMemInfo(ARDStruct *p_buf,int McrNum)
 	return max_mem_size;
 }
 
-void* memcpy(void *p_dst, void *p_src, u32 size)
-{
-	char* p_d = (char*) p_dst;
-	char* p_src_end = ((char*)p_src + size);
-	while (p_src!=p_src_end)
-	{
-		*p_d++ = *((char*)p_src++);
-	}
-}
+
 
 //启用分页机制
 void setup_paging(PageDirEntry *PageDirBase,u32 mem_size)
@@ -179,7 +182,35 @@ void setup_paging(PageDirEntry *PageDirBase,u32 mem_size)
 
 
 }
+typedef void (*Entry_func)();
+void init_kernel(Elf32_Ehdr* p_kernel_img)
+{
+	
+	//void e_entry();
+	
+	u32 p_kernel_base = (u32) p_kernel_img;
+	u32 phnum = (u32)p_kernel_img->e_phnum; //program header table entry count
+	Entry_func e_entry = (Entry_func)(p_kernel_img->e_entry);
+	
+	u32 phentsize = (u32)p_kernel_img->e_phentsize; //Program header table entry size 
+	
+	//Program header table file offset
+	Elf32_Phdr* e_phoff = (Elf32_Phdr *)(p_kernel_img->e_phoff + p_kernel_base);
+	Elf32_Phdr* p_phdr;
 
+	//从镜像中加载kenel到对应的地址
+	for(u32 i=0;i<phnum;++i)
+	{
+		p_phdr = e_phoff + i;
+		memcpy((void*)p_phdr->p_vaddr, 
+			   (void*)(p_kernel_base + (u32)p_phdr->p_offset),
+			   p_phdr->p_filesz
+			   );
+	}
+	e_entry(); //进入内核
+}
+
+//======= for test =======
 void print_mem(u32 *addr, u32 size)
 {
 	DispStr("mem addr:");

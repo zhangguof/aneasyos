@@ -59,7 +59,7 @@ $(BIN_PATH)/boot.bin: $(SRC_PATH)/boot/boot.asm
 		$(ASM) $(ASMBFLAGS) -o $@ $<
 
 $(BIN_PATH)/setup.bin: $(SRC_PATH)/boot/setup.asm $(SRC_PATH)/boot/setup_c.c
-		$(CC) -c -fno-builtin -fno-stack-protector -m32 -std=c99 $(SRC_PATH)/boot/setup_c.c -o $(OBJS_PATH)/boot/setup_c.o
+		$(CC) -I $(SRC_PATH)/boot/include/ -c -fno-builtin -fno-stack-protector -m32 -std=c99 $(SRC_PATH)/boot/setup_c.c -o $(OBJS_PATH)/boot/setup_c.o
 		$(ASM) -I $(SRC_PATH)/boot/include/ -f elf $(SRC_PATH)/boot/setup.asm -o $(OBJS_PATH)/boot/setup.o
 		$(LD) --script $(LD_SCRIPT) $(OBJS_PATH)/boot/setup.o $(OBJS_PATH)/boot/setup_c.o -o $(BIN_PATH)/setup.bin
 
