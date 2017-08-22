@@ -157,7 +157,6 @@ start32:
 	mov	esp, TopOfStack
 
 	;call print_hello
-
 	pushad
 	push szMemChkTitle
 	call DispStr
@@ -250,8 +249,11 @@ DispMemInfo:
 	pushad
 	push	dword [esi]		;
 	call	DispInt			;		DispInt(MemChkBuf[j*4]); // 显示一个成员
-	pop	eax			;
+	add esp, 4
+	;pop	eax		;
 	popad
+	mov eax, [esi]
+
 
 	stosd				;		ARDStruct[j*4] = MemChkBuf[j*4];
 	add	esi, 4			;

@@ -1,6 +1,7 @@
 
 #define VIDEO_ADDR 0x0b8000
 #define LINE_CHAR_NUM 80
+#define BITWIDTH 8
 
 
 typedef unsigned short u16;
@@ -33,34 +34,33 @@ void DispReturn()
 	DispStr("\n");
 }
 
-void DispInt(int a)
+void DispInt(unsigned int a)
 {
 	char *p = "00000000h ";
-	char *p_end = p+7;
-
-	while(a)
+	for(int i=0;i<BITWIDTH;++i)
 	{
-		int  c = a & 0x0000000F;
+		int c = (a>>((BITWIDTH-1 - i)*4)) & (0xF);
 		if(c >= 10)
 		{
-			*p_end = (char)('A'+(c-10));
+			p[i] = (char)('A'+(c-10));
 		}
 		else
 		{
-			*p_end = (char)('0'+c);
+			p[i] = (char)('0'+c);
 		}
-		p_end--;
-		a = a/16;
 	}
 	DispStr(p);	
 }
 
 void print_hello()
 {
-	DispStr("Hello in C!!!\nTEST\nTset2\n");
-	DispInt(0x123456EF);
-	DispInt(0x123451FF);
-	DispReturn();
-	DispInt(0x123456FF);
-	DispStr("Hello in C2!!!\nTEST\nTset2\n");
+	// DispInt(0x1);
+	// DispInt(0x0);
+	// DispInt(0x2);
+	// DispStr("Hello in C!!!\nTEST\nTset2\n");
+	// DispInt(0x123456EF);
+	// DispInt(0x123451FF);
+	// DispReturn();
+	// DispInt(0x123456FF);
+	// DispStr("Hello in C2!!!\nTEST\nTset2\n");
 }
