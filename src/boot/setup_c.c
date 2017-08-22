@@ -5,7 +5,19 @@
 
 
 typedef unsigned short u16;
+typedef unsigned int u32;
 u16 *p_gs_base = (u16*) VIDEO_ADDR; //显存地址
+
+//Address Range Descriptor Structure
+int dwMemSize = 0;
+typedef struct
+{
+	u32 dwBaseAddrLow;
+	u32 dwBaseAddrHigh;
+	u32 dwLengthLow;
+	u32 dwLengthHigh;
+	u32 dwType;
+}ARDStruct;
 
 int g_dwDispPos = (80 * 6 + 0);
 
@@ -50,6 +62,29 @@ void DispInt(unsigned int a)
 		}
 	}
 	DispStr(p);	
+}
+
+u32 DispMemInfo(ARDStruct *p_buf,int McrNum)
+{
+	u32 max_mem_size = 0;
+	for(int i=0;i<McrNum;++i)
+	{
+		ARDStruct *p = p_buf+i;
+		u32 mem_size = p->dwBaseAddrLow + p->dwLengthLow;
+		DispInt(p->dwBaseAddrLow);
+		DispInt(p->dwBaseAddrHigh);
+		DispInt(p->dwLengthLow);
+		DispInt(p->dwLengthHigh);
+		DispInt(p->dwType);
+		DispReturn();
+		if(p->dwType == 1 && mem_size > max_mem_size)
+		{
+			max_mem_size = mem_size;
+		}
+	}
+	DispStr("RAM size:");
+	DispInt(max_mem_size);
+	return max_mem_size;
 }
 
 void print_hello()
