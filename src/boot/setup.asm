@@ -13,8 +13,12 @@ extern DispStr
 extern DispReturn
 extern DispMemInfo
 
+extern setup_paging
+extern print_mem
+
 ;;导出
 ;;global DispStr   ;
+global SetCR_0_3
 
 ;org 0x90000
 LOADSEG equ 0x9000;
@@ -130,14 +134,14 @@ LoadMessage:	dd "Now Loading...."
 LmsgLen equ $-LoadMessage
 
 _dwMCRNumber:			dd	0	; Memory Check Result
-_dwDispPos:			dd	(80 * 6 + 0) * 2	; 屏幕第 6 行, 第 0 列。
+;_dwDispPos:			dd	(80 * 6 + 0) * 2	; 屏幕第 6 行, 第 0 列。
 _dwMemSize:			dd	0
-_ARDStruct:			; Address Range Descriptor Structure
-	_dwBaseAddrLow:		dd	0
-	_dwBaseAddrHigh:	dd	0
-	_dwLengthLow:		dd	0
-	_dwLengthHigh:		dd	0
-	_dwType:		dd	0
+;_ARDStruct:			; Address Range Descriptor Structure
+;	_dwBaseAddrLow:		dd	0
+;	_dwBaseAddrHigh:	dd	0
+;	_dwLengthLow:		dd	0
+;	_dwLengthHigh:		dd	0
+;	_dwType:		dd	0
 _MemChkBuf:	times	256	db	0
 
 
@@ -158,24 +162,23 @@ start32:
 	mov	esp, TopOfStack
 
 	;call print_hello
-	pushad
-	push szMemChkTitle
-	call DispStr
-	add esp, 4
-	popad
 
 	pushad
 	push dword [dwMCRNumber]
 	push MemChkBuf
-	call DispMemInfo1
+	call DispMemInfo
 	mov [dwMemSize], eax
 	popad
 
 	;jmp $
 
 	
+	pushad
+	push dword [dwMemSize]
+	push dword PageDirBase
+	call setup_paging
+	popad
 
-	call SetupPaging
 	call InitKernel
 
     ;; fill in BootParam[]
@@ -190,7 +193,7 @@ start32:
 	;;call print_hello
 ;;;;;;进入内核--------------------------
 	;jmp dword code32_sel:KernelEntryPoint
-	call print_hello
+	;call print_hello
 	mov eax, [dwElfEnterPoint]
 	jmp eax
 ;;;;;;----------------------------------
@@ -240,57 +243,16 @@ MemCpy:
 	ret			; 函数结束，返回
 ; MemCpy 结束-------------------------------------------------------------
 
-
-
-; 启动分页机制 --------------------------------------------------------------
-SetupPaging:
-	; 根据内存大小计算应初始化多少PDE以及多少页表
-	xor	edx, edx
-	mov	eax, [dwMemSize]
-	mov	ebx, 400000h	; 400000h = 4M = 4096 * 1024, 一个页表对应的内存大小
-	div	ebx
-	mov	ecx, eax	; 此时 ecx 为页表的个数，也即 PDE 应该的个数
-	test	edx, edx
-	jz	.no_remainder
-	inc	ecx		; 如果余数不为 0 就需增加一个页表
-.no_remainder:
-	push	ecx		; 暂存页表个数
-
-	; 为简化处理, 所有线性地址对应相等的物理地址. 并且不考虑内存空洞.
-
-	; 首先初始化页目录
-	mov	ax, data_sel
-	mov	es, ax
-	mov	edi, PageDirBase	; 此段首地址为 PageDirBase
-	xor	eax, eax
-	mov	eax, PageTblBase | PG_P  | PG_USU | PG_RWW
-.1:
-	stosd
-	add	eax, 4096		; 为了简化, 所有页表在内存中是连续的.
-	loop	.1
-
-	; 再初始化所有页表
-	pop	eax			; 页表个数
-	mov	ebx, 1024		; 每个页表 1024 个 PTE
-	mul	ebx
-	mov	ecx, eax		; PTE个数 = 页表个数 * 1024
-	mov	edi, PageTblBase	; 此段首地址为 PageTblBase
-	xor	eax, eax
-	mov	eax, PG_P  | PG_USU | PG_RWW
-.2:
-	stosd
-	add	eax, 4096		; 每一页指向 4K 的空间
-	loop	.2
-
+;设置cr3 cr0 启用分页
+SetCR_0_3:
+	push ebp
+	mov ebp, esp
 	mov	eax, PageDirBase
 	mov	cr3, eax
 	mov	eax, cr0
 	or	eax, 80000000h
 	mov	cr0, eax
-	jmp	short .3
-.3:
-	nop
-
+	pop ebp
 	ret
 
 ;;--------------------------------------------------------------
@@ -334,9 +296,9 @@ DATA:
 ;;--------------------------------
 
 ;;字符串
-_szMemChkTitle:			db	"BaseAddrL BaseAddrH LengthLow LengthHigh   Type", 0Ah, 0
-_szRAMSize:			db	"RAM size:", 0
-_szReturn:			db	0Ah, 0
+;_szMemChkTitle:			db	"BaseAddrL BaseAddrH LengthLow LengthHigh   Type", 0Ah, 0
+;_szRAMSize:			db	"RAM size:", 0
+;_szReturn:			db	0Ah, 0
 ;;变量
 
 ;
@@ -344,20 +306,20 @@ _dwElfEnterPoint: dd 0
 
 
 ;; 保护模式下使用这些符号
-szMemChkTitle		equ	_szMemChkTitle
-szRAMSize		equ	_szRAMSize
-szReturn		equ	_szReturn
+;szMemChkTitle		equ	_szMemChkTitle
+;szRAMSize		equ	_szRAMSize
+;szReturn		equ	_szReturn
 
 ;;引用16位段数据
-dwDispPos		equ	LoadBaseAdr + _dwDispPos
+;dwDispPos		equ	LoadBaseAdr + _dwDispPos
 dwMemSize		equ	LoadBaseAdr + _dwMemSize
 dwMCRNumber		equ	LoadBaseAdr + _dwMCRNumber
-ARDStruct		equ	LoadBaseAdr + _ARDStruct
-	dwBaseAddrLow	equ	LoadBaseAdr + _dwBaseAddrLow
-	dwBaseAddrHigh	equ	LoadBaseAdr + _dwBaseAddrHigh
-	dwLengthLow	equ	LoadBaseAdr + _dwLengthLow
-	dwLengthHigh	equ	LoadBaseAdr + _dwLengthHigh
-	dwType		equ	LoadBaseAdr + _dwType
+;ARDStruct		equ	LoadBaseAdr + _ARDStruct
+;	dwBaseAddrLow	equ	LoadBaseAdr + _dwBaseAddrLow
+;	dwBaseAddrHigh	equ	LoadBaseAdr + _dwBaseAddrHigh
+;	dwLengthLow	equ	LoadBaseAdr + _dwLengthLow
+;	dwLengthHigh	equ	LoadBaseAdr + _dwLengthHigh
+;	dwType		equ	LoadBaseAdr + _dwType
 MemChkBuf		equ	LoadBaseAdr + _MemChkBuf
 
 dwElfEnterPoint equ _dwElfEnterPoint
