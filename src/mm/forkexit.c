@@ -275,7 +275,7 @@ static void cleanup( proc * proc)
 
 	proc->p_flags = FREE_SLOT;
 
-	printf("{MM} ((--cleanup():: %s (%d) has been cleaned up.--))\n", proc->p_name, proc2pid(proc));
+	printf("{MM} ((--cleanup()::%s(%d) has been cleaned up.--))\n", proc->p_name, proc2pid(proc));
 	/* dump_fd_graph("((--cleanup():: %s (%d) has been cleaned up.--))", proc->name, proc2pid(proc)); */
 }
 
@@ -315,7 +315,7 @@ static void cleanup( proc * proc)
 		if (p_proc->p_parent == pid) {
 			children++;
 			if (p_proc->p_flags & HANGING) {
-				printl("{MM} ((--do_wait():: %s (%d) is HANGING, "
+				printl("{MM} ((--do_wait()::%s(%d) is HANGING, "
 				       "so let's clean it up.--))",
 				       p_proc->p_name, i);
 				/* dump_fd_graph("((--do_wait():: %s (%d) is HANGING, " */
@@ -330,14 +330,14 @@ static void cleanup( proc * proc)
 	if (children) {
 		/* has children, but no child is HANGING */
 		proc_table[pid].p_flags |= WAITING;
-		printf("{MM} ((--do_wait():: %s (%d) is WAITING for child "
+		printf("{MM} ((--do_wait()::%s(%d) is WAITING for child "
 		       "to exit().--))\n", proc_table[pid].p_name, pid);
 		/* dump_fd_graph("((--do_wait():: %s (%d) is WAITING for child " */
 		/*        "to exit().--))", proc_table[pid].name, pid); */
 	}
 	else {
 		/* no child at all */
-		printf("{MM} ((--do_wait():: %s (%d) has no child at all.--))\n",
+		printf("{MM} ((--do_wait()::%s(%d) has no child at all.--))\n",
 		       proc_table[pid].p_name, pid);
 		/* dump_fd_graph("((--do_wait():: %s (%d) is has no child at all.--))", */
 		/*        proc_table[pid].name, pid); */
