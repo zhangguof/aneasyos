@@ -10,8 +10,6 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 u16 *p_gs_base = (u16*) VIDEO_ADDR; //显存地址
 
-
-
 //Address Range Descriptor Structure
 int dwMemSize = 0;
 typedef struct
@@ -108,7 +106,7 @@ void DispInt(unsigned int a)
 	DispStr(p);	
 }
 
-void* memcpy(void *p_dst, void *p_src, u32 size)
+void* memcpy(void *p_dst, const void *p_src, u32 size)
 {
 	char* p_d = (char*) p_dst;
 	char* p_src_end = ((char*)p_src + size);
@@ -116,6 +114,7 @@ void* memcpy(void *p_dst, void *p_src, u32 size)
 	{
 		*p_d++ = *((char*)p_src++);
 	}
+	return p_dst;
 }
 
 u32 DispMemInfo(ARDStruct *p_buf,int McrNum)

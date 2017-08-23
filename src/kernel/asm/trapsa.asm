@@ -98,31 +98,6 @@ ALIGN	16
 hwint00:		; Interrupt routine for irq 0 (the clock).
 
     hwint_master 0
-    ;sub esp,4   ;跳过 retaddr
- ;    call save
- ;    in al, INT_M_CTLMASK
- ;   or al,1
- ;  out INT_M_CTLMASK,al
-
-
-
-    ;inc byte [gs:0]
-
-  ;  mov al, EOI  ;通知8259a中断结束，可以接受中断请求
- ;   out INT_M_CTL, al
-
- ;   sti
- ;   push 0
-    ;call clock_handler
- ;   call	[irq_table + 4 * 0]
- ;   add esp, 4
- ;   cli
-
-;    in  al, INT_M_CTLMASK
- ;   and al, 0xfe
- ; out INT_M_CTLMASK,al
-
-;    ret   ;;中断重入返回到 .restart_reenter ,通常回到.restart_v2
 
 ALIGN	16
 hwint01:		; Interrupt routine for irq 1 (keyboard)

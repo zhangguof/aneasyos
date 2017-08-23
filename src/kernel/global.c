@@ -42,8 +42,11 @@ irq_handler irq_table[NR_IRQ];   //iqr处理句柄
 
  //系统调用句柄
 system_call sys_call_table[NR_SYS_CALL]={sys_get_ticks,
-                                         sys_write,sys_sendrec,
-                                         sys_printx} ;
+                                         sys_write,
+                                         sys_sendrec,
+                                         sys_printx,
+                                        } ;
+
 
 //tty and console
 TTY       tty_table[NR_CONSOLES];   //一个tty对应一个console
