@@ -254,7 +254,7 @@ void task_fs()
     /* open the device: hard disk */
     MESSAGE driver_msg;
     driver_msg.type = DEV_OPEN;
-    //send_rec(BOTH, TASK_HD, &driver_msg);
+    send_rec(BOTH, TASK_HD, &driver_msg);
 
     MESSAGE msg;
    // milli_delay(20000);
