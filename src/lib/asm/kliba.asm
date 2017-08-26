@@ -24,6 +24,9 @@ global disable_irq
 global disable_int
 global enable_int
 
+global cpuid_info
+global check_cpu_info
+
 ; ========================================================================
 ;                  void disp_str(char * info);
 ; ========================================================================
@@ -237,3 +240,30 @@ enable_int:
             sti;
             ret
 
+check_cpu_info:
+	mov eax,80000000h
+	cpuid
+	ret
+ ; =====cpuid================
+ ;The ID flag (bit 21) in the EFLAGS register indicates support for the CPUID instruction.
+ ;If a software procedure can set and clear this flag, the processor executing the procedure supports the CPUID instruction.
+ ;cpuid_info(u32 op, char* buf)
+cpuid_info:
+	push ebp
+	mov ebp, esp
+	mov eax, [ebp+8]; arg1
+	cpuid
+	push esi
+	mov esi, [ebp+12];arg2
+	mov [esi],eax
+	add esi,4
+	mov [esi],ebx
+	add esi,4
+	mov [esi],ecx
+	add esi,4
+	mov [esi],edx
+
+	pop esi
+
+	leave
+	ret

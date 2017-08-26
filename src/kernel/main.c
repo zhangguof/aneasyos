@@ -288,6 +288,20 @@ void Init()
     printf("Init is begin ticks:%d\n",get_ticks());
     //printf("Init is begin!\n");
     //spin("test end");
+    char cpuinfo[100];
+    u32 r = check_cpu_info();
+    if(r>=0x80000004)
+    {
+        cpuid_info_str(cpuinfo);
+        printf("get cpuinfo:%s\n", cpuinfo);
+    }
+    else
+    {
+        printf("get cpuinfo error!\n");
+    }
+
+    
+    while (1);
     int pid = fork();
 
     if (pid != 0)

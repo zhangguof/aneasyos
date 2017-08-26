@@ -17,6 +17,9 @@ void	port_write(u16 port, void* buf, int n);
 void disp_str(char * info);
 void disp_color_str(char * info, int color);
 void get_boot_params(struct boot_params * pbp);
+void cpuid_info(unsigned int op, char* buf); //asm implent
+void cpuid_info_str(char* buf); // c implent
+unsigned int check_cpu_info();
 
 int getpid();
 

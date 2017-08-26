@@ -194,3 +194,20 @@ void delay(int time)
 	return s1;
 }
 
+//get cpu info string...
+//sizeof(buf)>=3*4*4=48b
+void cpuid_info_str(char *buf)
+{
+	unsigned int op;
+	op = 0x80000002;
+	cpuid_info(op,buf);
+	op = 0x80000003;
+	buf = buf + 4*4;
+	cpuid_info(op,buf);
+	buf = buf + 4*4;
+	op = 0x80000004;
+	cpuid_info(op,buf);
+	//buf = buf+4*4;
+	//*buf = '\0';
+}
+

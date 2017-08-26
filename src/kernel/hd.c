@@ -131,7 +131,7 @@ void task_hd()
         switch(msg.type)
         {
         case DEV_OPEN:
-             //hd_identify(0);  //something erro with usb boot
+             hd_identify(0);  //something erro with usb boot
              break;
         default:
              panic("unknow msg");
