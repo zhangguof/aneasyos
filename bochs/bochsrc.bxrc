@@ -20,3 +20,5 @@ log: bochsout.txt
 # disable the mouse, since DLX is text only
 mouse: enabled=0
 
+clock: sync=realtime, rtc_sync=1
+
