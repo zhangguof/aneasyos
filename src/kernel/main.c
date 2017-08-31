@@ -133,8 +133,12 @@ void main()
     /* Print out the flags.  */
 
 
-    ticks=0;
-    k_reenter = 0;
+    ticks = 0;
+    kernel_ticks = 0;
+    
+    unix_time = get_rtc_unxi_time();
+
+    k_reenter = 0;  
     p_proc_ready = proc_table;
 
 
@@ -286,8 +290,6 @@ void task_fs()
 void Init()
 {
     printf("Init is begin ticks:%d\n",get_ticks());
-    //printf("Init is begin!\n");
-    //spin("test end");
     char cpuinfo[100];
     u32 r = check_cpu_info();
     if(r>=0x80000004)
@@ -299,8 +301,13 @@ void Init()
     {
         printf("get cpuinfo error!\n");
     }
+    printf("start time:%d\n", time());
+    printf("%d,%d\n", time(),time());
+    sleep(5000);
+    printf("after time:%d\n",time());
+    //printf("%d:%d\n",time(), time());
+    printf("ticks:%d,kernel_ticks:%d\n", ticks,kernel_ticks);
 
-    
     while (1);
     int pid = fork();
 
@@ -315,7 +322,7 @@ void Init()
     else
     {
         //child process
-
+        printf("child start time:%d\n", time());
         printf("child is running, pid:%d\n", getpid());  //why not p_proc_ready - proc_table?
         //because child is a copy of kernel space
         exit(123);

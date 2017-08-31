@@ -16,5 +16,6 @@
 #include "keyboard.h"  //键盘读取缓冲队列结构原型，一些特殊键位的常量定义
 
 #include "assert.h"
+#include "libc.h"
 
 //#define MULTIBOOT 1

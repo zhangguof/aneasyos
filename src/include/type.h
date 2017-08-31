@@ -60,4 +60,27 @@ struct boot_params {
 	unsigned char *	kernel_file;	/* addr of kernel file */
 };
 
+typedef struct 
+{
+	u32 hour;
+	u32 minute;
+	u32 second;	
+}TIME;
+
+typedef struct 
+{
+	u32 year;
+	u32 month;
+	u32 day;
+	union{
+		struct 
+		{
+			u32 hour;
+			u32 minute;
+			u32 second;
+		};
+		TIME time;
+	};
+}DATE;
+
 #endif

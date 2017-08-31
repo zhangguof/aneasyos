@@ -27,6 +27,8 @@ extern CONSOLE   console_table[];
 extern int nr_current_console;
 
 extern int ticks;
+extern int kernel_ticks;
+extern u32 unix_time;
 
 
 /* MM */

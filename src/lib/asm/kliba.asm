@@ -108,7 +108,7 @@ disp_color_str:
 ; ========================================================================
 out_byte:
 	mov	edx, [esp + 4]		; port
-	mov	al, [esp + 4 + 4]	; value
+	mov	eax, [esp + 4 + 4]	; value
 	out	dx, al
 	nop	; 一点延迟
 	nop

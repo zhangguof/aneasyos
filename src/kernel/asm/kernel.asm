@@ -144,7 +144,7 @@ sys_call:
     call save
     push esi
     push dword[p_proc_ready]
-    sti
+    ;sti
 
    ; push esi
     push edx
@@ -156,7 +156,7 @@ sys_call:
     pop esi
 
     mov [esi + EAXREG - P_STACKBASE], eax
-    cli
+    ;cli
     ret
 
 

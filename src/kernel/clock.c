@@ -3,14 +3,16 @@
 void clock_handler(int irq)
 {
     ticks++;
+    if(ticks % HZ == 0)
+    {
+        unix_time++;
+    }
     p_proc_ready->ticks--;
     p_proc_ready->runtime++;
-  //  disp_str("#");
-
 
     if(k_reenter != 0)
     {
-       // disp_str("!");
+        kernel_ticks++;
         return;
     }
     if(p_proc_ready->ticks > 0)

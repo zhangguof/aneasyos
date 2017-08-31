@@ -4,6 +4,9 @@
 */
 #include "MyOs.h"
 
+#define BCD2BIN(a) ((a)/16*10+(a&0xF))
+#define CURRENT_YEAR (2017)
+
 
 int getpid()
 {
@@ -207,7 +210,64 @@ void cpuid_info_str(char *buf)
 	buf = buf + 4*4;
 	op = 0x80000004;
 	cpuid_info(op,buf);
-	//buf = buf+4*4;
-	//*buf = '\0';
 }
 
+u8 get_RTC_reg(int reg)
+{
+	out_byte(COMOS_RTC_ADD, reg);
+	u8 r = in_byte(COMOS_RTC_DATA);
+	return r;
+}
+
+int get_update_in_progress_flag() {
+    out_byte(COMOS_RTC_ADD, 0x0A);
+    return (in_byte(COMOS_RTC_DATA) & 0x80);
+}
+ 
+
+void read_rtc(DATE* date)
+{
+	int format = get_RTC_reg(0x0B);
+	u8 second,minute,hour,day,month;
+	u32 year;
+	while (get_update_in_progress_flag());
+
+	second =  get_RTC_reg(0x00);
+	minute = get_RTC_reg(0x02);
+	hour = get_RTC_reg(0x04);
+	day = get_RTC_reg(0x07);
+	month = get_RTC_reg(0x08);
+	year = get_RTC_reg(0x09);
+
+	if(!(format & 0x40))
+	{
+		//bcd mode
+		second = BCD2BIN(second);
+		minute = BCD2BIN(minute);
+		hour = BCD2BIN(hour);
+		day = BCD2BIN(day);
+		month = BCD2BIN(month);
+		year = BCD2BIN(year);
+	}
+
+ 	//12hour format to 24 hour format
+    if (!(format & 0x02) && (hour & 0x80)) {
+            hour = ((hour & 0x7F) + 12) % 24;
+      }
+ 
+	year = CURRENT_YEAR/100*100 + year;
+
+	date->second =  second;
+	date->minute = minute;
+	date->hour = hour;
+	date->day = day;
+	date->month = month;
+	date->year = year;
+}
+
+u32 get_rtc_unxi_time()
+{
+	DATE date;
+	read_rtc(&date);
+	return mktime(&date);
+}
