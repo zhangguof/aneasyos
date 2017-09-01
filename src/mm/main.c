@@ -17,10 +17,6 @@ static void init_mm();
 	printf("init the task_mm ticks:%d\n",get_ticks());
 
 	init_mm();
-    DATE date;
-    read_rtc(&date);
-    printf("%d-%d-%d %02d:%02d:%02d\n", date.year,date.month,date.day,date.hour,date.minute,date.second);
-    printf("unix time:%d\n", mktime(&date));
     printf("The task_mm begin\n");
 	while (1) {
 		send_recv(RECEIVE, ANY, &mm_msg);

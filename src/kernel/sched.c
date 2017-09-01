@@ -631,7 +631,7 @@ int send_recv(int function, int src_dest, MESSAGE* msg)
               {
                   //printf("func:%x,src_dest:%d,msg_type:%d,msg_src:%d\n", function,src_dest,msg->type,msg->source);
                   ret=sendrec(RECEIVE, src_dest, msg);
-                  //printf("func:%x,src_dest:%d,msg_type:%d,msg_src:%d\n", function,src_dest,msg->type,msg->source);
+                  //printf("after recv:%x,src_dest:%d,msg_type:%d,msg_src:%d,msg_value:%d\n", function,src_dest,msg->type,msg->source,msg->RETVAL);
               }
               break;
     case SEND:

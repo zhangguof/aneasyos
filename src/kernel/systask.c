@@ -15,12 +15,11 @@ int do_clock()
 
 u32 time()
 {
-    return timex();
-    //TODO: 使用同步消息
-    // MESSAGE msg;
-    // msg.type = GETTIME;
-    // send_recv(BOTH,TASK_SYS,&msg);
-    // return msg.RETVAL;
+    //return timex();
+    MESSAGE msg;
+    msg.type = GETTIME;
+    send_recv(BOTH,TASK_SYS,&msg);
+    return msg.RETVAL;
 }
 
 void sleep(int ms)
