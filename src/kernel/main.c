@@ -155,7 +155,7 @@ void testA()
     while(1)
     {
         printf("A.");
-        milli_delay(5000);
+        sleep(5000);
     }
 }
 
@@ -166,7 +166,7 @@ void testB()
     while(1)
     {
         printf("B.");
-        milli_delay(5000);
+        sleep(3000);
     }
 }
 

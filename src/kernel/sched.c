@@ -164,7 +164,6 @@ void schedule()
                     //p->p_flags &= ~PROC_SLEEP;
                     RESET_FLAG(p->p_flags,PROC_SLEEP);
                     p->wake_up_ticks = 0;
-                    printf("ticks:%d\n", ticks);
                 }
 
             }
