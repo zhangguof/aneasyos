@@ -123,7 +123,8 @@ void task_hd()
 {
     printf("init task_hd: ticks:%d\n", get_ticks());
     MESSAGE msg;
-    init_hd();
+    //TODO:init_hd,#PF now!
+    //init_hd();
     while(1)
     {
         send_rec(RECEIVE, ANY, &msg);

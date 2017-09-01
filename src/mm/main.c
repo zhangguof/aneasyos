@@ -64,9 +64,10 @@ static void init_mm();
 static void init_mm()
 {
 #ifndef MULTIBOOT
-	struct boot_params bp;
-	get_boot_params(&bp);
-	memory_size = bp.mem_size;
+	//struct boot_params bp;
+	//get_boot_params(&bp);
+	//memory_size = bp.mem_size;
+	memory_size = kernel_env.mem_size;
 #else
     memory_size = mbi.mem_upper * 1024;
 #endif

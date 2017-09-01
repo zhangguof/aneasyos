@@ -83,4 +83,9 @@ typedef struct
 	};
 }DATE;
 
+typedef struct 
+{
+	u32 mem_size;
+} KERNEL_ENV;
+
 #endif

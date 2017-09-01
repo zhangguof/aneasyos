@@ -64,3 +64,6 @@ u8 *		mmbuf		= (u8*)0x700000;
 const int	MMBUF_SIZE	= 0x100000;
 int			memory_size;
 MESSAGE			mm_msg;
+
+//kernel env
+KERNEL_ENV kernel_env;

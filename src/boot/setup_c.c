@@ -1,5 +1,6 @@
 
 #include "elf.h"
+#include "type.h"
 #define VIDEO_ADDR (0x0b8000)
 #define LINE_CHAR_NUM (80)
 #define BITWIDTH (8)
@@ -59,7 +60,9 @@ typedef union
 	}; 
 }PageTableEntry;
 
+
 int g_dwDispPos = (80 * 6 + 0);
+int g_mem_size;
 
 void SetCR_0_3();// start pageing 
 
@@ -139,6 +142,7 @@ u32 DispMemInfo(ARDStruct *p_buf,int McrNum)
 	DispStr("RAM size:");
 	DispInt(max_mem_size);
 	DispReturn();
+	g_mem_size = max_mem_size;
 	return max_mem_size;
 }
 
@@ -167,9 +171,10 @@ void setup_paging(PageDirEntry *PageDirBase,u32 mem_size)
 	}
 	//初始化 pte(page table entry)
 	PageTableEntry pte = {0};
-	pte.P  = 1;
-	pte.RW = 1; 
+	
 	pte.US = 1;
+	pte.P  = 1;
+	pte.RW = 1;
 	pte.base = 0;// 从0开始映射物理空间
 
 	for(int i=0;i<page_table_cnt*1024;++i)
@@ -177,11 +182,15 @@ void setup_paging(PageDirEntry *PageDirBase,u32 mem_size)
 		page_table_base[i] = pte;
 		pte.base = pte.base + 1; //一页空间大小
 	}
+
 	SetCR_0_3();
+	pte.base = 0;
+	pte.P = 0;
+	page_table_base[0] = pte; //第一页不可读写
 
 
 }
-typedef void (*Entry_func)();
+typedef void (*Entry_func)(KERNEL_ENV* penv);
 void init_kernel(Elf32_Ehdr* p_kernel_img)
 {
 	
@@ -206,7 +215,9 @@ void init_kernel(Elf32_Ehdr* p_kernel_img)
 			   p_phdr->p_filesz
 			   );
 	}
-	e_entry(); //进入内核
+	KERNEL_ENV env;
+	env.mem_size = g_mem_size;
+	e_entry(&env); //进入内核
 }
 
 //======= for test =======

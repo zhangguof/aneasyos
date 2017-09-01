@@ -20,7 +20,7 @@ OUT_IMG = $(BIN_PATH)/a.img
 ASM				 = nasm
 LD				 = $(TOOL_PATH)/i386-elf-ld
 CC				 = $(TOOL_PATH)/i386-elf-gcc
-ASMBFLAGS		 = -I $(SRC_PATH)/boot/include/
+ASMBFLAGS		 = -I $(SRC_PATH)/boot/include/ -I $(SRC_PATH)/include/
 ASMKFLAGS		 = -g -I $(SRC_PATH)/include/ -f elf
 LDFLAGS			 = -Ttext $(ENTRYPOINT) -m elf_i386
 #LDFLAGS			 = -elf -T link.ld --oformat elf32-i386
@@ -59,8 +59,8 @@ $(BIN_PATH)/boot.bin: $(SRC_PATH)/boot/boot.asm
 		$(ASM) $(ASMBFLAGS) -o $@ $<
 
 $(BIN_PATH)/setup.bin: $(SRC_PATH)/boot/setup.asm $(SRC_PATH)/boot/setup_c.c
-		$(CC) -I $(SRC_PATH)/boot/include/ -c -fno-builtin -fno-stack-protector -m32 -std=c99 $(SRC_PATH)/boot/setup_c.c -o $(OBJS_PATH)/boot/setup_c.o
-		$(ASM) -I $(SRC_PATH)/boot/include/ -f elf $(SRC_PATH)/boot/setup.asm -o $(OBJS_PATH)/boot/setup.o
+		$(CC) -I $(SRC_PATH)/boot/include/ -I $(SRC_PATH)/include/ -c -fno-builtin -fno-stack-protector -m32 -std=c99 $(SRC_PATH)/boot/setup_c.c -o $(OBJS_PATH)/boot/setup_c.o
+		$(ASM) -I $(SRC_PATH)/boot/include/ -I $(SRC_PATH)/include/ -f elf $(SRC_PATH)/boot/setup.asm -o $(OBJS_PATH)/boot/setup.o
 		$(LD) --script $(LD_SCRIPT) $(OBJS_PATH)/boot/setup.o $(OBJS_PATH)/boot/setup_c.o -o $(BIN_PATH)/setup.bin
 
 

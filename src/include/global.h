@@ -37,6 +37,9 @@ extern	u8 *			mmbuf;
 extern	const int		MMBUF_SIZE;
 extern	int			    memory_size;
 
+//kernel
+extern KERNEL_ENV kernel_env;
+
 
 
 #endif

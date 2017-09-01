@@ -30,7 +30,7 @@ u32 seg2phy(u16 seg)
 }
 
 
-void cstart(void )
+void cstart(KERNEL_ENV* p_env)
 {
 //  disp_pos=0;
     //  disp_str("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
@@ -38,9 +38,10 @@ void cstart(void )
 
     //while(1){}
 
+    
+    kernel_env = *p_env;
+
     //复制gdt
-
-
     u16* p_gdt_limt=(u16 *)(&gdt_ptr[0]);
     u32* p_gdt_base=(u32 *)(&gdt_ptr[2]);
 
@@ -120,6 +121,8 @@ int  get_ticks2()
 
 void main()
 {
+    // int *p = 4;
+    // *p = 1;
     disp_pos=0;
     disp_str("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     disp_str("--------\"main\" begin------\n");
@@ -290,6 +293,7 @@ void task_fs()
 void Init()
 {
     printf("Init is begin ticks:%d\n",get_ticks());
+    printf("mem_size:%d",kernel_env.mem_size);
     char cpuinfo[100];
     u32 r = check_cpu_info();
     if(r>=0x80000004)
