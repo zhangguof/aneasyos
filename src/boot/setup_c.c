@@ -1,6 +1,8 @@
 
 #include "elf.h"
 #include "type.h"
+#include "const.h"
+
 #define VIDEO_ADDR (0x0b8000)
 #define LINE_CHAR_NUM (80)
 #define BITWIDTH (8)
@@ -11,8 +13,14 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 u16 *p_gs_base = (u16*) VIDEO_ADDR; //显存地址
 
+KERNEL_ENV g_kernel_env;
+int g_mem_size;
+
+int g_dwDispPos = (80 * 6 + 0);
+
 //Address Range Descriptor Structure
-int dwMemSize = 0;
+//int dwMemSize = 0;
+
 typedef struct
 {
 	u32 dwBaseAddrLow;
@@ -61,8 +69,8 @@ typedef union
 }PageTableEntry;
 
 
-int g_dwDispPos = (80 * 6 + 0);
-int g_mem_size;
+
+
 
 void SetCR_0_3();// start pageing 
 
@@ -191,6 +199,14 @@ void setup_paging(PageDirEntry *PageDirBase,u32 mem_size)
 
 }
 typedef void (*Entry_func)(KERNEL_ENV* penv);
+
+void init_kenle_env()
+{
+	g_kernel_env.mem_size = g_mem_size;
+	g_kernel_env.drives = *(u8*)(BDA_DRIVES_ADD);
+
+}
+
 void init_kernel(Elf32_Ehdr* p_kernel_img)
 {
 	
@@ -215,9 +231,8 @@ void init_kernel(Elf32_Ehdr* p_kernel_img)
 			   p_phdr->p_filesz
 			   );
 	}
-	KERNEL_ENV env;
-	env.mem_size = g_mem_size;
-	e_entry(&env); //进入内核
+
+	e_entry(&g_kernel_env); //进入内核
 }
 
 //======= for test =======

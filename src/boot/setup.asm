@@ -18,6 +18,8 @@ extern init_kernel
 
 extern print_mem
 
+extern init_kenle_env
+
 ;;导出
 global SetCR_0_3
 
@@ -152,6 +154,8 @@ start32:
 	call DispMemInfo
 	mov [dwMemSize], eax
 	popad
+
+	call init_kenle_env;
 
 	;jmp $
     ;; fill in BootParam[]
