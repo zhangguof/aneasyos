@@ -1,6 +1,6 @@
 
 # how much memory the emulated machine will have
-megs: 64
+megs: 128
 
 # filename of ROM images
 romimage: file=bochs/BIOS-bochs-latest
@@ -11,7 +11,8 @@ floppya: 1_44=bin/a.img, status=inserted
 
 # hard disk
 ata0: enabled=1, ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14
-ata0-master: type=disk, path="bochs/c.img", mode=flat
+ata0-master: type=disk, path="bochs/hd.dmg", mode=flat
+#ata0-slave:  type=cdrom, path="bochs/tydos20140228fix.iso", status=inserted
 # choose the boot disk.
 boot: floppy
 
