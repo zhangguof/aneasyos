@@ -17,9 +17,9 @@ static void init_hd()
 {
     //get the num of driver from the bios date area
 
-    u8 *pNrDrives = (u8*)(0x475);
-    printf("NrDrives:%d.\n",*pNrDrives);
-    assert(*pNrDrives);
+    u8 NrDrives = kernel_env.drives;
+    printf("NrDrives:%d.\n",NrDrives);
+    assert(NrDrives);
     put_irq_hangler(AT_WINI_IRQ,hd_handler);
     enable_irq(CASCADE_IRQ);
     enable_irq(AT_WINI_IRQ);
@@ -29,7 +29,7 @@ void hd_identify(int driver)
 {
     struct hd_cmd cmd;
 
-    cmd.device = MAKE_DEVICE_REG(0, driver,0);
+    cmd.device = MAKE_DEVICE_REG(0, driver,0); //master driver
     cmd.command = ATA_IDENTIFY;
     hd_cmd_out(&cmd);
     interrupt_wait();
@@ -108,6 +108,75 @@ int waitfor(int mask, int val, int timeout)
     return 0;
 }
 
+int read_ata_st()
+{
+
+}
+
+int read_ata_lab28()
+{
+
+}
+
+int hd_read_bytes(int driver,u32 lba,u32 byte_cnt,char data[])
+{
+    /*
+        1.test state.if busy?
+    */
+    assert(driver==0 || driver == 1);
+    struct hd_cmd cmd;
+    int sectors_cnt = byte_cnt/SECTOR_SIZE;
+    char *p = data;
+    if(byte_cnt%SECTOR_SIZE!=0)
+        sectors_cnt++;
+    cmd.device = MAKE_DEVICE_REG(1,driver,(0x0F&(lba>>24)));
+    cmd.lba_low = (lba & 0xff);
+    cmd.lba_mid = ((lba>>8) & 0xff);
+    cmd.lba_high = ((lba>>16) & 0xff);
+    cmd.count = sectors_cnt;
+    cmd.command = ATA_READ;
+    hd_cmd_out(&cmd);
+
+    printf("byty cnt:%d\n", byte_cnt);
+    u32 byte_to_read = byte_cnt;
+    while (byte_to_read)
+    {
+        u32 size = byte_to_read > SECTOR_SIZE?SECTOR_SIZE:byte_to_read;
+        printf("befor interrupt!!:%d\n",size);
+        interrupt_wait();
+        printf("after interrupt!!\n");
+        port_read(REG_DATA, hdbuf, SECTOR_SIZE);
+        memcpy(p,hdbuf,size);
+        p+=size;
+        byte_to_read -= size;
+    }
+    //test
+    // u32 *pi = (u32*)data;
+    // for(int i=0;i<byte_cnt/4;++i)
+    // {
+    //     printf("%x ", pi[i]);
+    //     if(i && i%4==0)
+    //         printf("\n");
+    // }
+}
+
+void hd_read_MBR(int driver, struct part_ent partition_table[])
+{
+    //PARTITION_TABLE_OFFSET=0x1be
+    char buf[1024];
+    const int part_size = 4;
+    hd_read_bytes(driver,0,SECTOR_SIZE,buf);//lba=0,MBR
+    for(int i=0;i<part_size;++i)
+    {
+        partition_table[i] = *(struct part_ent*)(buf+PARTITION_TABLE_OFFSET+i*sizeof(struct part_ent));
+        // printf("part_ent:%d,boot_ind:%d,sys_id:%d,start_sect:%d,cnt:%d\n", \
+        //         i,partition_table[i].boot_ind,partition_table[i].sys_id,
+        //         partition_table[i].start_sect,partition_table[i].nr_sects
+        //         );
+    }
+
+}
+
 /************************************************
 *      hd_handler
 *  ring0 interrupt handler
@@ -123,8 +192,10 @@ void task_hd()
 {
     printf("init task_hd: ticks:%d\n", get_ticks());
     MESSAGE msg;
-    //TODO:init_hd,#PF now!
-    //init_hd();
+    //char buf[2048];
+    struct part_ent partition_table[4];
+    
+    init_hd();
     while(1)
     {
         send_rec(RECEIVE, ANY, &msg);
@@ -133,6 +204,9 @@ void task_hd()
         {
         case DEV_OPEN:
              hd_identify(0);  //something erro with usb boot
+             //read_bytes(0,0,1024,buf);
+             //hd_read_MBR(0,partition_table);
+             read_vbr_16();
              break;
         default:
              panic("unknow msg");
