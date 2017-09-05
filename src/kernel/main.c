@@ -305,12 +305,12 @@ void Init()
     {
         printf("get cpuinfo error!\n");
     }
-    printf("start time:%d\n", time());
-    printf("%d,%d\n", time(),time());
-    sleep(5000);
-    printf("after time:%d\n",time());
-    printf("%d:%d\n",time(), time());
-    printf("ticks:%d,kernel_ticks:%d\n", ticks,kernel_ticks);
+    // printf("start time:%d\n", time());
+    // printf("%d,%d\n", time(),time());
+    // sleep(5000);
+    // printf("after time:%d\n",time());
+    // printf("%d:%d\n",time(), time());
+    // printf("ticks:%d,kernel_ticks:%d\n", ticks,kernel_ticks);
 
     while (1);
     int pid = fork();

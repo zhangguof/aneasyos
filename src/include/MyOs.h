@@ -18,4 +18,6 @@
 #include "assert.h"
 #include "libc.h"
 
+#include "fat.h"
+
 //#define MULTIBOOT 1

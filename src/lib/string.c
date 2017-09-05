@@ -6,6 +6,7 @@
 // global  strcpy
 // global  strlen
 #include "type.h"
+#include "klib.h"
 
 void memcpy(void *dst,void *src,size_t size)
 {
@@ -40,6 +41,19 @@ size_t strlen(char* p_str)
 	char *p = p_str;
 	while(*p++);
 	return (size_t)(p - p_str);
+}
+
+void print_buf(const void* buf,int size)
+{
+	u32* p = (u32*) buf;
+	for(int i=0;i<size/4;++i)
+	{
+		printf("%x ", p[i]);
+		if(i && i%4==0)
+		{
+			printf("\n");
+		}
+	}
 }
 
 

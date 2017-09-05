@@ -86,6 +86,9 @@ typedef struct
 typedef struct 
 {
 	u32 mem_size;
+	
+	//BIOS Data Area (BDA)
+	u8 drives  ;//0x0475 (byte)	# of hard disk drives detected
 } KERNEL_ENV;
 
 #endif

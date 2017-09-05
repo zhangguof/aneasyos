@@ -30,7 +30,7 @@ CFLAGS			 = -g -I $(SRC_PATH)/include/ -c -fno-builtin -fno-stack-protector -m32
 BOOT			 = $(BIN_PATH)/boot.bin $(BIN_PATH)/setup.bin
 KERNEL			 = $(BIN_PATH)/kernel.bin
 
-CSRC= $(wildcard $(SRC_PATH)/kernel/*.c $(SRC_PATH)/lib/*.c $(SRC_PATH)/mm/*.c)
+CSRC= $(wildcard $(SRC_PATH)/kernel/*.c $(SRC_PATH)/lib/*.c $(SRC_PATH)/mm/*.c $(SRC_PATH)/fs/*.c)
 ASRC= $(wildcard $(SRC_PATH)/kernel/asm/*.asm $(SRC_PATH)/lib/asm/*.asm)
 OBJS1= $(addsuffix .o,$(basename $(ASRC) $(CSRC)))
 OBJS= $(subst $(SRC_PATH)/, $(OBJS_PATH)/, $(OBJS1))
@@ -78,9 +78,14 @@ $(OBJS_PATH)/lib/asm/%.o: $(SRC_PATH)/lib/asm/%.asm
 $(OBJS_PATH)/kernel/%.o: $(SRC_PATH)/kernel/%.c
 		$(CC) $(CFLAGS) -o $@ $<
 
-$(OBJS_PATH)/lib/%.o: l$(SRC_PATH)/ib/%.c
+$(OBJS_PATH)/lib/%.o: $(SRC_PATH)/lib/%.c
 		$(CC) $(CFLAGS) -o $@ $<
 
+$(OBJS_PATH)/lib/%.o: $(SRC_PATH)/mm/%.c
+		$(CC) $(CFLAGS) -o $@ $<
+
+$(OBJS_PATH)/lib/%.o: $(SRC_PATH)/fs/%.c
+		$(CC) $(CFLAGS) -o $@ $<
 
 
 

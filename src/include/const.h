@@ -311,4 +311,8 @@ enum msgtype {
 #define	BI_KERNEL_FILE			2
 
 
+//BDA
+#define BDA_DRIVES_ADD 0x0475
+
+
 #endif
