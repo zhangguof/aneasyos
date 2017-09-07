@@ -120,7 +120,7 @@ void delay(int time)
  *          n bytes of s1 is found, respectively, to be less than, to match,
  *          or  be greater than the first n bytes of s2.
  *****************************************************************************/
- int memcmp(const void * s1, const void *s2, int n)
+ int memcmp(const void * s1, const void *s2, u32 n)
 {
 	if ((s1 == 0) || (s2 == 0)) { /* for robustness */
 		return (s1 - s2);

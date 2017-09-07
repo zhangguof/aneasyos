@@ -112,12 +112,22 @@ typedef struct PACKED_STRUC
 	};
 }VBR_32; 
 
+#define ATTR_READ_ONLY (0x01)
+#define ATTR_HIDDEN (0x02)
+#define ATTR_SYSTEM (0x04)
+#define ATTR_VOLUME_ID (0x08)
+#define ATTR_DIRECTORY (0x10)
+#define ATTR_ARCHIVE (0x20)
+#define ATTR_LFN (READ_ONLY|HIDDEN|SYSTEM|VOLUME_ID)
 
 //Directory entry
 typedef  struct PACKED_STRUC
 {
 	char short_file_name[11];
-	u8 file_attr;
+	//READ_ONLY=0x01 HIDDEN=0x02 SYSTEM=0x04 VOLUME_ID=0x08 
+	//DIRECTORY=0x10 ARCHIVE=0x20 
+	//LFN=READ_ONLY|HIDDEN|SYSTEM|VOLUME_ID 
+	u8 file_attr; 
 	u8 reserved[10];
 	u16 mtime;
 	u16 mdata;
@@ -146,6 +156,11 @@ typedef struct PACKED_STRUC
 	u16 start_cluster;
 	char name3[2];
 }LFN;
+
+// typedef struct PACKED_STRUC
+// {
+
+// }FAT;
 
 
 void read_vbr_16();

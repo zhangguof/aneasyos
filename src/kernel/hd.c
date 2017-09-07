@@ -137,7 +137,7 @@ int hd_read_bytes(int driver,u32 lba,u32 byte_cnt,char data[])
     cmd.command = ATA_READ;
     hd_cmd_out(&cmd);
 
-    printf("lba:%d,byty cnt:%d\n", lba,byte_cnt);
+    //printf("lba:%d,byty cnt:%d\n", lba,byte_cnt);
     u32 byte_to_read = byte_cnt;
     while (byte_to_read)
     {

@@ -261,7 +261,7 @@ void task_fs()
     /* open the device: hard disk */
     MESSAGE driver_msg;
     driver_msg.type = DEV_OPEN;
-   // send_rec(BOTH, TASK_HD, &driver_msg);
+    send_rec(BOTH, TASK_HD, &driver_msg);
 
     MESSAGE msg;
    // milli_delay(20000);
@@ -311,8 +311,6 @@ void Init()
     // printf("after time:%d\n",time());
     // printf("%d:%d\n",time(), time());
     // printf("ticks:%d,kernel_ticks:%d\n", ticks,kernel_ticks);
-    //printf("%s\n","1.TXT");
-    printf("test:%s","111");
 
     while (1);
     int pid = fork();

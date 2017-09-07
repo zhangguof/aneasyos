@@ -37,6 +37,18 @@ char* strcpy(char* p_dst, char* p_src)
 
 }
 
+char* strncpy(char* p_dst, const char* p_src, size_t n)
+{
+	char *p = p_dst;
+	while(*p_src && p_dst<p+n)
+	{
+		*p_dst++ = *p_src++;
+	}
+	*p_dst = '\0';
+	return p;
+
+}
+
 size_t strlen(char* p_str)
 {
 	char *p = p_str;

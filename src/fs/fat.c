@@ -57,52 +57,97 @@ void get_long_name(char *buf,LFN* lfn)
 	*buf = '\0';
 }
 
-void get_83_name(char *buf,DirectoryEntry* pde)
+void get_83_name(char *buf,DirectoryEntry* pde,int is_dir)
 {
-	char *t = buf;
 	memcpy(buf, pde->short_file_name, 8);
 	while(*buf!='\x20' && buf<buf+8) ++buf;
+	if(is_dir)
+	{
+		*buf++ = '\0';
+		return;
+	}
 	*buf++ = '.';
 	memcpy(buf, pde->short_file_name+8, 3);
 	while(*buf!='\x20' && buf<buf+3) ++buf;
 	*buf = '\0';
-	printf("test::::%s\n",t);
-	print_buf(t, 12);
-	printf("\nxxxx:%s\n","1.TXT\0\x20\x20");
 
 }
 
-void print_dir(int root_dir_sector)
+void get_date(char*buf,DirectoryEntry* pde)
 {
-	int offest = root_dir_sector * 512;
-	//const int dir_entry_size = sizeof(DirectoryEntry);
-	char buf[SECTOR_SIZE];
-	hd_read_bytes(0, root_dir_sector, SECTOR_SIZE, buf);
-	DirectoryEntry dir_entry[10];
-	DirectoryEntry *p = (DirectoryEntry*)buf;
-	printf("root,start:%d\n",root_dir_sector*512);
-	print_buf(buf, 120);
-	for(int i=0;i<10;++i,p++)
+	// Hour	5 bits
+	// Minutes	6 bits
+	// Seconds	5 bits
+	
+	// Year	7 bits
+	// Month	4 bits
+	// Day	5 bit
+	int hour;
+	int min;
+	int sec;
+	int year;
+	int mon;
+	int day;
+	u16 mdate = pde->mdata;
+	u16 mtime = pde->mtime;
+	hour = (mtime >> 11) & 0b011111;
+	min = (mtime >> 5) & 0b0111111;
+	sec = (mtime) & 0b011111;
+	year = ((mdate>>9) & 0b01111111) + 1980;
+	mon = (mdate>>5) & 0b01111;
+	day = (mdate) & 0b011111;
+	sprintf(buf, "%d-%d-%d %d:%d:%d", year,mon,day,hour,min,sec);
+}
+
+void read_fat(char* fat,VBR_16* vbr)
+{
+	const int partition_offest_sectors = 1;
+	int first_fat_sector = partition_offest_sectors + vbr->reserved_sectors;
+	int fat_size = vbr->fat_sector_size;
+	for(int i=0;i<fat_size;++i)
 	{
-		dir_entry[i] = *p;
-		char filename[30];
+		hd_read_bytes(0, first_fat_sector+i, SECTOR_SIZE, fat);
+		fat += SECTOR_SIZE;
+	}
+}
+
+void print_dirs(DirectoryEntry* dirs,u32 count)
+{
+	//const int dir_entry_size = sizeof(DirectoryEntry);
+	printf("dir count:%d\n",count);
+	DirectoryEntry* p = dirs;
+
+	for(int i=0;i<count;++i,p++)
+	{
+		LFN* lfn = (LFN*)p;
+		char filename[50];
+		if(lfn->seq_num == 0xE5)
+		{
+			printl("delete entry!!!\n");
+			continue;
+		}
 		if(p->file_attr == 0xF)
 		{
-			LFN* lfn = (LFN*)p;
-			if(lfn->seq_num == 0xE5)
-			{
-				printl("delete entry!!!\n");
-				continue;
-			}
 			get_long_name(filename, lfn);
-			printf("LFN:%s,attr:%x,seq:%x\n",filename,lfn->attr,lfn->seq_num);
+			printf("first_byte:%x,LFN:%s,attr:%x,seq:%x\n",*(u8*)lfn,filename,lfn->attr,lfn->seq_num);
 		}
 		else
 		{
-			get_83_name(filename, p);
-			printf("filename:%s,attr:%x,start:%d,size:%d\n",filename,dir_entry[i].file_attr,
-				dir_entry[i].start_cluster,dir_entry[i].file_size
+			if(p->file_attr & ATTR_DIRECTORY)
+			{
+				get_83_name(filename, p, 1);
+			}
+			else
+			{
+				get_83_name(filename, p, 0);
+			}
+			
+			printf("first_byte:%x,filename:%s,attr:%x,start:%d,size:%d\n",*(u8*)p,filename,p->file_attr,
+				p->start_cluster,p->file_size
 			);
+			// char *buf = filename;
+			// get_date(buf,p);
+			// printf("mtime:%s\n",buf);
 		}
 		
 	}
@@ -135,7 +180,118 @@ void print_vbr(VBR_16* vbr)
 	printf("total_clusters:%d\n",total_clusters);
 	printf("first_data_offset:%d\n",first_data_sector*512);
 	printf("first_fat_sector:%d\n",first_fat_sector*512);
-	print_dir(first_data_sector - root_dir_sectors);
+	// print_dir(first_data_sector - root_dir_sectors);
+}
+
+int check_dir_valid(DirectoryEntry* p)
+{
+	//1 file
+	//2 dir
+	//0 No valid.
+	//-1 end mark.
+	if(*(u8*)p == 0)
+	{
+		return -1;
+	}
+	if(*(u8*)p == 0xE5)
+	{
+		return 0;
+	}
+	if(p->file_attr & ATTR_DIRECTORY)
+		return 2;
+	return 1;
+}
+
+void get_root_dirs(DirectoryEntry *dir_entrys,u32 *entry_num, VBR_16* vbr)
+{
+	int max_root_dir = vbr->max_root_dir;
+	const int partition_offest_sectors = 1;
+	const int ENTRY_SIZE = sizeof(DirectoryEntry); //32 byte
+	int fat_size = vbr->fat_sector_size; //fat32 for 0.
+	int root_dir_sectors = (max_root_dir*32 + (vbr->sector_size-1))/vbr->sector_size;
+
+	int first_data_sector = partition_offest_sectors + vbr->reserved_sectors + (vbr->nfat * fat_size) + root_dir_sectors;
+
+	int root_start_sector = first_data_sector - root_dir_sectors;
+	char hd_buf[SECTOR_SIZE];
+	int end_mark = 0;
+	*entry_num = 0;
+	DirectoryEntry* p_dst_entry = dir_entrys;
+
+	for(int i=0;i<root_dir_sectors && !end_mark;i++)
+	{
+		hd_read_bytes(0, root_start_sector+i, SECTOR_SIZE, hd_buf);
+		DirectoryEntry* p = (DirectoryEntry*) hd_buf;
+		for(int j=0;j<SECTOR_SIZE/ENTRY_SIZE;++j)
+		{
+			int check_mark = check_dir_valid(p+j);
+			if(check_mark == -1)
+			{
+				end_mark = 1;
+				break;
+			}
+			if(check_mark > 0)
+			{
+				*p_dst_entry++ = *(p+j);
+			}
+		}
+	}
+	*entry_num = p_dst_entry - dir_entrys;
+}
+
+u32 get_next_cluster(u32 cur_cluster,u16* fat)
+{
+	u16 mark = fat[cur_cluster];
+	if(mark >= 0xFFF8)
+	{
+		printf("end mark:%x\n",mark);
+		return 0;
+	}
+	return mark;
+}
+
+void read_cluster_chain(char* buf, u32 size,u32 start_cluster,VBR_16* vbr,u16* fat)
+{
+	const int partition_offest_sectors = 1;
+	const int CLUSTER_SIZE = 4;
+	const int ONE_CLUSTER_BYTES = CLUSTER_SIZE * SECTOR_SIZE;
+	assert(CLUSTER_SIZE == vbr->cluster_size);
+	
+	int fat_size = vbr->fat_sector_size;
+	int root_dir_sectors = (vbr->max_root_dir*32 + (vbr->sector_size-1))/vbr->sector_size;
+	int first_data_sector = partition_offest_sectors + vbr->reserved_sectors + (vbr->nfat * fat_size) + root_dir_sectors;
+	
+	int clustes = (size+ONE_CLUSTER_BYTES-1)/ONE_CLUSTER_BYTES;
+	printf("read:clustes:%d\n",clustes);
+	
+	u32 cur_cluster = start_cluster;
+	u32 lba = first_data_sector + (cur_cluster-2)*CLUSTER_SIZE;
+	while(clustes--){
+		hd_read_bytes(0, lba, ONE_CLUSTER_BYTES, buf);
+		printf("read offest:%d,%d\n",lba,lba*512);
+		buf += ONE_CLUSTER_BYTES;
+		cur_cluster = get_next_cluster(cur_cluster, fat);
+		if(!cur_cluster)
+		{
+			break;
+			printf("break!!!:%d\n",clustes);
+		}
+		lba = first_data_sector + (cur_cluster-2) * CLUSTER_SIZE;
+	}
+}
+
+void get_parent_dir(DirectoryEntry* root_dirs, const char* filepath)
+{
+
+}
+
+//filename = "/test/2.txt" || "/1.txt"
+u32 read_file(const char* pfilename, char* buf, u32 count)
+{
+	u32 read_byte = 0;
+
+
+	return 0;
 }
 
 void read_vbr_16()
@@ -153,23 +309,35 @@ void read_vbr_16()
 	hd_read_bytes(0,part_start_sec,SECTOR_SIZE,buf); //read firt secort of fat partition.
 	vbr = *(VBR_16*)(buf);
 
-	memcpy(oem_name,vbr.oem_name,8);
-	oem_name[8]='\0';
+	strncpy(oem_name,vbr.oem_name,sizeof(vbr.oem_name));
+	strncpy(vol_label,vbr.vol_label,sizeof(vbr.vol_label));
+	strncpy(fs_type,vbr.fs_type,sizeof(vbr.fs_type));
 
-	memcpy(vol_label,vbr.vol_label,11);
-	vol_label[11] = '\0';
-
-	memcpy(fs_type,vbr.fs_type,8);
-	fs_type[8]= '\0';
-
-
-	//print_bpb((BPB*)&(vbr.ebpb));
-	print_vbr(&vbr);
 
 	printf("oem:%s,dri_num:%d,res:%d,sig:%d,vol_id:%x,label:%s,fs_type:%s\n", \
 		oem_name,vbr.phy_drive_num,vbr.reserved, \
 		vbr.ext_boot_sig,vbr.vol_id,vol_label,fs_type
 		);
+	printf("FAT_SIZE:%d,bytes:%d,cluster_size:%d\n",
+		vbr.fat_sector_size,vbr.fat_sector_size*SECTOR_SIZE,vbr.cluster_size);
+
+	//print_vbr(&vbr);
+	DirectoryEntry dir_entrys[128];
+	int dir_count = 0;
+	get_root_dirs(dir_entrys, &dir_count, &vbr);
+	print_dirs(dir_entrys,dir_count);
+	char file_buf[7925];
+	u16 fat[50000];
+	read_fat((char*)fat,&vbr);
+	print_buf(fat,4*10);
+	read_cluster_chain(file_buf, 7925, 23, &vbr, fat);
+	file_buf[7925] = '\0';
+	printf("%s\n",file_buf+7925-10);
+
+
+
+	
+
 }
 
 
