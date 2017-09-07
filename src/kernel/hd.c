@@ -137,14 +137,14 @@ int hd_read_bytes(int driver,u32 lba,u32 byte_cnt,char data[])
     cmd.command = ATA_READ;
     hd_cmd_out(&cmd);
 
-    printf("byty cnt:%d\n", byte_cnt);
+    printf("lba:%d,byty cnt:%d\n", lba,byte_cnt);
     u32 byte_to_read = byte_cnt;
     while (byte_to_read)
     {
         u32 size = byte_to_read > SECTOR_SIZE?SECTOR_SIZE:byte_to_read;
-        printf("befor interrupt!!:%d\n",size);
+        //printf("befor interrupt!!:%d\n",size);
         interrupt_wait();
-        printf("after interrupt!!\n");
+        //printf("after interrupt!!\n");
         port_read(REG_DATA, hdbuf, SECTOR_SIZE);
         memcpy(p,hdbuf,size);
         p+=size;
