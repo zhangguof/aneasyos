@@ -32,6 +32,7 @@ char* strcpy(char* p_dst, char* p_src)
 	{
 		*p_dst++ = *p_src++;
 	}
+	*p_dst = '\0';
 	return p;
 
 }
