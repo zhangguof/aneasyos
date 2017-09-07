@@ -36,6 +36,7 @@
 #define HANGING   0x10	/* set when proc exits without being waited by parent */
 #define FREE_SLOT 0x20	/* set when proc table entry is not used*/
 #define DOING_FORK 0x40	/* set when child proc doing fork*/
+#define PROC_SLEEP 0x80 /* set when proc is sleep?*/
 
 
 
@@ -80,6 +81,10 @@
 #define	V_MEM_SIZE	0x8000	/* 32K: B8000H -> BFFFFH */
 
 
+/*COMOS*/
+#define COMOS_RTC_ADD 0x70
+#define COMOS_RTC_DATA 0x71
+
 /* Hardware interrupts */
 #define	NR_IRQ		16	/* Number of IRQs */
 #define	CLOCK_IRQ	0
@@ -108,7 +113,7 @@
 
 
 
-#define NR_SYS_CALL 4  //系统调用的个数
+#define NR_SYS_CALL sizeof(sys_call_table)/sizeof(system_call)  //系统调用的个数
 
 
 
@@ -146,7 +151,7 @@ enum msgtype {
 	HARD_INT = 1,
 
 	/* SYS task */
-	GET_TICKS, GET_PID, GET_RTC_TIME,
+	GET_TICKS, GET_PID, GET_RTC_TIME,MSGSLEEP,GETTIME,
 
 	/* FS */
 	OPEN, CLOSE, READ, WRITE, LSEEK, STAT, UNLINK,
@@ -304,6 +309,10 @@ enum msgtype {
 #define	BI_MAG				0
 #define	BI_MEM_SIZE			1
 #define	BI_KERNEL_FILE			2
+
+
+//BDA
+#define BDA_DRIVES_ADD 0x0475
 
 
 #endif

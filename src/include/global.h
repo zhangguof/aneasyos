@@ -27,6 +27,8 @@ extern CONSOLE   console_table[];
 extern int nr_current_console;
 
 extern int ticks;
+extern int kernel_ticks;
+extern u32 unix_time;
 
 
 /* MM */
@@ -34,6 +36,9 @@ extern	MESSAGE			mm_msg;
 extern	u8 *			mmbuf;
 extern	const int		MMBUF_SIZE;
 extern	int			    memory_size;
+
+//kernel
+extern KERNEL_ENV kernel_env;
 
 
 

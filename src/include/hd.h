@@ -257,7 +257,7 @@ struct hd_info
 #define ATA_READ		0x20
 #define ATA_WRITE		0x30
 /* for DEVICE register. */  //lba 由4部分组成
-#define	MAKE_DEVICE_REG(lba,drv,lba_highest) (((lba) << 6) |		\
+#define	MAKE_DEVICE_REG(use_lba,drv,lba_highest) (((use_lba) << 6) |		\
 					      ((drv) << 4) |		\
 					      (lba_highest & 0xF) | 0xA0)
 

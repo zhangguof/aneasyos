@@ -41,9 +41,14 @@ TASK user_proc_table[NR_PROCS]={{Init,   STACK_SIZE_INIT, "INIT"},
 irq_handler irq_table[NR_IRQ];   //iqr处理句柄
 
  //系统调用句柄
-system_call sys_call_table[NR_SYS_CALL]={sys_get_ticks,
-                                         sys_write,sys_sendrec,
-                                         sys_printx} ;
+system_call sys_call_table[]={sys_get_ticks,
+                              sys_write,
+                              sys_sendrec,
+                              sys_printx,
+                              sys_sleep,
+                              sys_get_time,
+                              };
+
 
 //tty and console
 TTY       tty_table[NR_CONSOLES];   //一个tty对应一个console
@@ -51,9 +56,14 @@ CONSOLE   console_table[NR_CONSOLES];
 int nr_current_console;
 
 int ticks;
+int kernel_ticks;
+u32 unix_time; //sec from 1970-01-01 00:00:00
 
 
 u8 *		mmbuf		= (u8*)0x700000;
 const int	MMBUF_SIZE	= 0x100000;
 int			memory_size;
 MESSAGE			mm_msg;
+
+//kernel env
+KERNEL_ENV kernel_env;

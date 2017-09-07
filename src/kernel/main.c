@@ -30,7 +30,7 @@ u32 seg2phy(u16 seg)
 }
 
 
-void cstart(void )
+void cstart(KERNEL_ENV* p_env)
 {
 //  disp_pos=0;
     //  disp_str("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
@@ -38,9 +38,10 @@ void cstart(void )
 
     //while(1){}
 
+    
+    kernel_env = *p_env;
+
     //复制gdt
-
-
     u16* p_gdt_limt=(u16 *)(&gdt_ptr[0]);
     u32* p_gdt_base=(u32 *)(&gdt_ptr[2]);
 
@@ -120,6 +121,8 @@ int  get_ticks2()
 
 void main()
 {
+    // int *p = 4;
+    // *p = 1;
     disp_pos=0;
     disp_str("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     disp_str("--------\"main\" begin------\n");
@@ -133,8 +136,12 @@ void main()
     /* Print out the flags.  */
 
 
-    ticks=0;
-    k_reenter = 0;
+    ticks = 0;
+    kernel_ticks = 0;
+    
+    unix_time = get_rtc_unxi_time();
+
+    k_reenter = 0;  
     p_proc_ready = proc_table;
 
 
@@ -151,7 +158,7 @@ void testA()
     while(1)
     {
         printf("A.");
-        milli_delay(5000);
+        sleep(5000);
     }
 }
 
@@ -162,7 +169,7 @@ void testB()
     while(1)
     {
         printf("B.");
-        milli_delay(5000);
+        sleep(3000);
     }
 }
 
@@ -254,7 +261,7 @@ void task_fs()
     /* open the device: hard disk */
     MESSAGE driver_msg;
     driver_msg.type = DEV_OPEN;
-    //send_rec(BOTH, TASK_HD, &driver_msg);
+   // send_rec(BOTH, TASK_HD, &driver_msg);
 
     MESSAGE msg;
    // milli_delay(20000);
@@ -286,8 +293,28 @@ void task_fs()
 void Init()
 {
     printf("Init is begin ticks:%d\n",get_ticks());
-    //printf("Init is begin!\n");
-    //spin("test end");
+    printf("mem_size:%d\n",kernel_env.mem_size);
+    char cpuinfo[100];
+    u32 r = check_cpu_info();
+    if(r>=0x80000004)
+    {
+        cpuid_info_str(cpuinfo);
+        printf("get cpuinfo:%s\n", cpuinfo);
+    }
+    else
+    {
+        printf("get cpuinfo error!\n");
+    }
+    // printf("start time:%d\n", time());
+    // printf("%d,%d\n", time(),time());
+    // sleep(5000);
+    // printf("after time:%d\n",time());
+    // printf("%d:%d\n",time(), time());
+    // printf("ticks:%d,kernel_ticks:%d\n", ticks,kernel_ticks);
+    //printf("%s\n","1.TXT");
+    printf("test:%s","111");
+
+    while (1);
     int pid = fork();
 
     if (pid != 0)
@@ -301,7 +328,7 @@ void Init()
     else
     {
         //child process
-
+        printf("child start time:%d\n", time());
         printf("child is running, pid:%d\n", getpid());  //why not p_proc_ready - proc_table?
         //because child is a copy of kernel space
         exit(123);

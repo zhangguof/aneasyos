@@ -59,18 +59,21 @@ mulit_entry:
         ;mov [ebx + (80*1+39)*2],ax
         ;jmp $
         ; 将esp 从 setup 移动到kernel
+        mov eax, [esp+4];//arg1?penv
         mov esp, TopOfStack
         ;hlt
 
-        push ebx
-        call get_mbi
-        add esp,4
+        ;push ebx
+        ;call get_mbi
+        ;add esp,4
+        
        ; push eax
         ;call disp_int;
         ;add esp,4
        ; hlt
         ;;test
         ;sgdt [gdt_ptr]; 保存gdt信息到gdt_ptr
+        push eax;
 
         call cstart   ;;重置gdt，idt
 
@@ -144,7 +147,7 @@ sys_call:
     call save
     push esi
     push dword[p_proc_ready]
-    sti
+    ;sti
 
    ; push esi
     push edx
@@ -156,7 +159,7 @@ sys_call:
     pop esi
 
     mov [esi + EAXREG - P_STACKBASE], eax
-    cli
+    ;cli
     ret
 
 

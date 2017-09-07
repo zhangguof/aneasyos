@@ -31,6 +31,25 @@ static char* i2a(int val, int base, char ** ps)
 	return *ps;
 }
 
+/*======================================================================*
+                                u2a
+ *======================================================================*/
+static char* u2a(unsigned int val,char ** ps)
+{
+	char *p = *ps;
+	//char *p_buf = p;
+	*p++='0';
+	*p++='x';
+
+	for(int i=7;i>=0;--i)
+	{
+		int c = (val>>i*4)&(0x0000000F);
+		*p++ = (char)((c<10)?(c+'0'):(c-10+'A'));
+	}
+	*p = '\0';
+	return *ps;
+}
+
 
 /*======================================================================*
                                 vsprintf
@@ -87,8 +106,8 @@ static char* i2a(int val, int base, char ** ps)
 			*q='\0';
 			break;
 		case 'x':
-			m = *((int*)p_next_arg);
-			i2a(m, 16, &q);
+			m = *((unsigned int*)p_next_arg);
+			u2a(m, &q);
 			p_next_arg += 4;
 			break;
 		case 'd':

@@ -19,6 +19,7 @@ void init_sched()
 
     for(i=0; i<NR_TASKS + NR_PROCS;i++,p_proc++,p_task++)
     {
+        p_proc->wake_up_ticks = 0;
         if(i >= NR_TASKS + NR_NATIVE_PROCS)
         {
             p_proc->p_flags = FREE_SLOT;
@@ -112,15 +113,24 @@ void init_sched()
         //p_task++;
         sel_ldt += (1<<3);
     }
-
+    
     //设置时钟中断
     put_irq_hangler(CLOCK_IRQ, clock_handler);
     enable_irq(CLOCK_IRQ);  //接受时钟中断
 
+
     //初始化8253
     out_byte(TIMER_MODE, RATE_GENERATOR);
+    //out_byte(TIMER0, (u8)(((TIMER_FREQ/HZ))&0xff));
+    //out_byte(TIMER0, (u8)(((TIMER_FREQ/HZ) >> 8)&0xff));
+
     out_byte(TIMER0, (u8)(TIMER_FREQ/HZ));
-    out_byte(TIMER0, (u8)(TIMER_FREQ/HZ) >> 8);
+    out_byte(TIMER0, (u8)((TIMER_FREQ/HZ) >> 8));
+    //printf("set timer0:%x,%x\n", (TIMER_FREQ/HZ),(TIMER_FREQ/HZ) >> 8);
+    //printf("set timer02:%x,%x\n", (((TIMER_FREQ/HZ))&0xff),(((TIMER_FREQ/HZ) >> 8)&0xff));
+
+
+
 
     //初始化进程优先级
 //    proc_table[0].ticks=proc_table[0].priority=20;
@@ -147,6 +157,17 @@ void schedule()
     {
         for(p=proc_table;p<proc_table+NR_TASKS + NR_PROCS;p++)
         {
+            if(p->p_flags & PROC_SLEEP)
+            {
+                if(p->wake_up_ticks <= ticks)
+                {
+                    //p->p_flags &= ~PROC_SLEEP;
+                    RESET_FLAG(p->p_flags,PROC_SLEEP);
+                    p->wake_up_ticks = 0;
+                }
+
+            }
+
             if(p->p_flags == READY)
             {
                 if(p->ticks > MaxTicks)
@@ -156,6 +177,7 @@ void schedule()
                     //printf("change to:%d,name:%s\n", p->pid,p->p_name);
                 }
             }
+
 
         }
         if(!MaxTicks)
@@ -330,7 +352,7 @@ static int deadlock(int src, int dest)
         p_dest->p_msg = 0;
         p_dest->p_flags &= ~RECEIVING; //dest 收到了消息
         p_dest->p_recvfrom = NO_TASK;
-        unblock(p_dest);
+        //unblock(p_dest);
 
         assert(p_dest->p_flags == 0);
         assert(p_dest->p_msg == 0);
@@ -439,7 +461,7 @@ static int deadlock(int src, int dest)
             assert(p_who_wanna_recv->p_recvfrom ==NO_TASK);
             assert(p_who_wanna_recv->q_sending != 0);
 
-            assert(p_from->p_flags == SENDING);
+            assert(p_from->p_flags | SENDING);
             assert(p_from->p_msg != 0);
             assert(p_from->p_recvfrom == NO_TASK);
             assert(p_from->p_sendto == proc2pid(p_who_wanna_recv));
@@ -518,7 +540,7 @@ static int deadlock(int src, int dest)
         p_from->p_msg = 0;
         p_from->p_sendto = NO_TASK;
         p_from->p_flags &= ~SENDING;
-        unblock(p_from);
+        //unblock(p_from);
 
     }
     else
@@ -608,7 +630,7 @@ int send_recv(int function, int src_dest, MESSAGE* msg)
               {
                   //printf("func:%x,src_dest:%d,msg_type:%d,msg_src:%d\n", function,src_dest,msg->type,msg->source);
                   ret=sendrec(RECEIVE, src_dest, msg);
-                  //printf("func:%x,src_dest:%d,msg_type:%d,msg_src:%d\n", function,src_dest,msg->type,msg->source);
+                  //printf("after recv:%x,src_dest:%d,msg_type:%d,msg_src:%d,msg_value:%d\n", function,src_dest,msg->type,msg->source,msg->RETVAL);
               }
               break;
     case SEND:
@@ -644,7 +666,7 @@ int send_recv(int function, int src_dest, MESSAGE* msg)
 		p->p_flags &= ~RECEIVING; /* dest has received the msg */
 		p->p_recvfrom = NO_TASK;
 		assert(p->p_flags == 0);
-		unblock(p);
+		//unblock(p);
 
 		assert(p->p_flags == 0);
 		assert(p->p_msg == 0);

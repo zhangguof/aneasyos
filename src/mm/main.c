@@ -15,8 +15,8 @@ static void init_mm();
  void task_mm()
 {
 	printf("init the task_mm ticks:%d\n",get_ticks());
+
 	init_mm();
-    
     printf("The task_mm begin\n");
 	while (1) {
 		send_recv(RECEIVE, ANY, &mm_msg);
@@ -64,9 +64,10 @@ static void init_mm();
 static void init_mm()
 {
 #ifndef MULTIBOOT
-	struct boot_params bp;
-	get_boot_params(&bp);
-	memory_size = bp.mem_size;
+	//struct boot_params bp;
+	//get_boot_params(&bp);
+	//memory_size = bp.mem_size;
+	memory_size = kernel_env.mem_size;
 #else
     memory_size = mbi.mem_upper * 1024;
 #endif

@@ -18,6 +18,8 @@ extern init_kernel
 
 extern print_mem
 
+extern init_kenle_env
+
 ;;导出
 global SetCR_0_3
 
@@ -87,11 +89,11 @@ starts16:
 
 	;jmp $
 
-	call SetupGdt
+SetupGdt:
+    lgdt [gdt_48]
 
 ; 关中断
 	cli
-
 ; 打开地址线A20
 	in	al, 92h
 	or	al, 00000010b
@@ -104,15 +106,6 @@ starts16:
 
 ; 真正进入保护模式
 	jmp	dword code32_sel:start32 ;; 调整链接脚本,32位符号地址从0x90000+sizeof(.16)开始
-
-
-SetupGdt:
-    lgdt [gdt_48]
-    ret
-
-SetupIdt:
-    nop
-    ret
 
 ;;gdt--------------------------------------------------------------------
 gdt:        Descriptor        0,         0,      0
@@ -162,6 +155,8 @@ start32:
 	mov [dwMemSize], eax
 	popad
 
+	call init_kenle_env;
+
 	;jmp $
     ;; fill in BootParam[]
 	mov	dword [BOOT_PARAM_ADDR], BOOT_PARAM_MAGIC ; Magic Number
@@ -205,8 +200,6 @@ SetCR_0_3:
 	ret
 
 ;;--------------------------------------------------------------
-
-
 ; InitKernel ---------------------------------------------------------------------------------
 ; 将 KERNEL.BIN 的内容经过整理对齐后放到新的位置
 ; --------------------------------------------------------------------------------------------

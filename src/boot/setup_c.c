@@ -1,5 +1,8 @@
 
 #include "elf.h"
+#include "type.h"
+#include "const.h"
+
 #define VIDEO_ADDR (0x0b8000)
 #define LINE_CHAR_NUM (80)
 #define BITWIDTH (8)
@@ -10,10 +13,14 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 u16 *p_gs_base = (u16*) VIDEO_ADDR; //显存地址
 
+KERNEL_ENV g_kernel_env;
+int g_mem_size;
 
+int g_dwDispPos = (80 * 6 + 0);
 
 //Address Range Descriptor Structure
-int dwMemSize = 0;
+//int dwMemSize = 0;
+
 typedef struct
 {
 	u32 dwBaseAddrLow;
@@ -61,7 +68,9 @@ typedef union
 	}; 
 }PageTableEntry;
 
-int g_dwDispPos = (80 * 6 + 0);
+
+
+
 
 void SetCR_0_3();// start pageing 
 
@@ -108,7 +117,7 @@ void DispInt(unsigned int a)
 	DispStr(p);	
 }
 
-void* memcpy(void *p_dst, void *p_src, u32 size)
+void* memcpy(void *p_dst, const void *p_src, u32 size)
 {
 	char* p_d = (char*) p_dst;
 	char* p_src_end = ((char*)p_src + size);
@@ -116,6 +125,7 @@ void* memcpy(void *p_dst, void *p_src, u32 size)
 	{
 		*p_d++ = *((char*)p_src++);
 	}
+	return p_dst;
 }
 
 u32 DispMemInfo(ARDStruct *p_buf,int McrNum)
@@ -140,6 +150,7 @@ u32 DispMemInfo(ARDStruct *p_buf,int McrNum)
 	DispStr("RAM size:");
 	DispInt(max_mem_size);
 	DispReturn();
+	g_mem_size = max_mem_size;
 	return max_mem_size;
 }
 
@@ -168,9 +179,10 @@ void setup_paging(PageDirEntry *PageDirBase,u32 mem_size)
 	}
 	//初始化 pte(page table entry)
 	PageTableEntry pte = {0};
-	pte.P  = 1;
-	pte.RW = 1; 
+	
 	pte.US = 1;
+	pte.P  = 1;
+	pte.RW = 1;
 	pte.base = 0;// 从0开始映射物理空间
 
 	for(int i=0;i<page_table_cnt*1024;++i)
@@ -178,11 +190,23 @@ void setup_paging(PageDirEntry *PageDirBase,u32 mem_size)
 		page_table_base[i] = pte;
 		pte.base = pte.base + 1; //一页空间大小
 	}
+
 	SetCR_0_3();
+	pte.base = 0;
+	pte.P = 0;
+	page_table_base[0] = pte; //第一页不可读写
 
 
 }
-typedef void (*Entry_func)();
+typedef void (*Entry_func)(KERNEL_ENV* penv);
+
+void init_kenle_env()
+{
+	g_kernel_env.mem_size = g_mem_size;
+	g_kernel_env.drives = *(u8*)(BDA_DRIVES_ADD);
+
+}
+
 void init_kernel(Elf32_Ehdr* p_kernel_img)
 {
 	
@@ -207,7 +231,8 @@ void init_kernel(Elf32_Ehdr* p_kernel_img)
 			   p_phdr->p_filesz
 			   );
 	}
-	e_entry(); //进入内核
+
+	e_entry(&g_kernel_env); //进入内核
 }
 
 //======= for test =======

@@ -60,4 +60,35 @@ struct boot_params {
 	unsigned char *	kernel_file;	/* addr of kernel file */
 };
 
+typedef struct 
+{
+	u32 hour;
+	u32 minute;
+	u32 second;	
+}TIME;
+
+typedef struct 
+{
+	u32 year;
+	u32 month;
+	u32 day;
+	union{
+		struct 
+		{
+			u32 hour;
+			u32 minute;
+			u32 second;
+		};
+		TIME time;
+	};
+}DATE;
+
+typedef struct 
+{
+	u32 mem_size;
+	
+	//BIOS Data Area (BDA)
+	u8 drives  ;//0x0475 (byte)	# of hard disk drives detected
+} KERNEL_ENV;
+
 #endif

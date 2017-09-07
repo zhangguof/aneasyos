@@ -7,6 +7,8 @@
 
 #ifndef _klib_h
 #define _klib_h
+#define SET_FLAG(p,f) ((p)|=(f))
+#define RESET_FLAG(p,f) ((p)&=(~(f)))
 
 //klib.c kilb.asm
 void out_byte(unsigned port,int value);
@@ -17,8 +19,14 @@ void	port_write(u16 port, void* buf, int n);
 void disp_str(char * info);
 void disp_color_str(char * info, int color);
 void get_boot_params(struct boot_params * pbp);
+void cpuid_info(unsigned int op, char* buf); //asm implent
+void cpuid_info_str(char* buf); // c implent
+unsigned int check_cpu_info();
 
 int getpid();
+
+void read_rtc(DATE* date);
+u32 get_rtc_unxi_time();
 
 
 
@@ -79,5 +87,9 @@ int read(char *buf);
  int		do_fork();
  void		do_exit(int status);
  void		do_wait();
+
+ //task sys
+ u32 time();
+ void sleep(int sec);
 
 #endif

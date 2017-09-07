@@ -1,0 +1,16 @@
+{
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	],
+	"settings":
+	{
+	    "cc_include_options":
+	    [
+	        "-isystem", "/Users/tony/newwork/github/aneasyos/src/include",
+	        "-isystem", "/Users/tony/newwork/github/aneasyos/src/boot/include",
+	    ]
+    }
+}
