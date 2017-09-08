@@ -1,5 +1,6 @@
 #ifndef _global_h
 #define _global_h
+#include "fat.h"
 
 extern  multiboot_info_t mbi;
 
@@ -39,6 +40,9 @@ extern	int			    memory_size;
 
 //kernel
 extern KERNEL_ENV kernel_env;
+
+//fs fat
+extern FS_FAT16 g_fs_fat16;
 
 
 

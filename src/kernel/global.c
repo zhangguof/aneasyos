@@ -67,3 +67,6 @@ MESSAGE			mm_msg;
 
 //kernel env
 KERNEL_ENV kernel_env;
+
+//fs fat
+FS_FAT16 g_fs_fat16;

@@ -123,7 +123,10 @@ typedef struct PACKED_STRUC
 //Directory entry
 typedef  struct PACKED_STRUC
 {
-	char short_file_name[11];
+	union{
+		char short_file_name[11];
+		u8 first_byte;
+	};
 	//READ_ONLY=0x01 HIDDEN=0x02 SYSTEM=0x04 VOLUME_ID=0x08 
 	//DIRECTORY=0x10 ARCHIVE=0x20 
 	//LFN=READ_ONLY|HIDDEN|SYSTEM|VOLUME_ID 
@@ -157,12 +160,32 @@ typedef struct PACKED_STRUC
 	char name3[2];
 }LFN;
 
-// typedef struct PACKED_STRUC
-// {
+#define FAT_ENTRY_NUM 191*512/2
+typedef struct PACKED_STRUC
+{
+	VBR_16 vbr;
+	VBR_16* pvbr;
+	u32 root_start_sector;
+	u32 root_sectors;
+	u32 fat_start_sector;
+	u32 data_start_sector;
+	u16 fat[FAT_ENTRY_NUM];
+}FS_FAT16;
 
-// }FAT;
+typedef struct PACKED_STRUC FS_DIR_ENTRY
+{
+	DirectoryEntry dir_ent;
+	char short_filename[13];//8+3+1+1
+	struct FS_DIR_ENTRY* next; //next entry;
+	struct FS_DIR_ENTRY* child_dir; //dir not file,has next,first child dir;
+	struct FS_DIR_ENTRY* parent_dir;
+	u32 dir_cnt;
+}FS_DIR_ENTRY;
+
+
 
 
 void read_vbr_16();
+u32 read_cluster_chain(char* buf, u32 size,u32 start_cluster,FS_FAT16* fs_fat);
 
 #endif

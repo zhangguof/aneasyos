@@ -9,6 +9,9 @@ void  memset(void* p_dst, char ch, unsigned int  size);
 char* strcpy(char* p_dst, char* p_src);
 char* strncpy(char* p_dst, const char* p_src, unsigned int n);
 int   strlen(char* p_str);
+
+char* strrchr(const char* s1,char c);
+char *strchr(const char*s1, char c);
 //klib.c
 int	memcmp(const void * s1, const void *s2, unsigned int  n);
 int	strcmp(const char * s1, const char *s2);

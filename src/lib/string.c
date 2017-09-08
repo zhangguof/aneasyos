@@ -8,7 +8,7 @@
 #include "type.h"
 #include "klib.h"
 
-void memcpy(void *dst,void *src,size_t size)
+void memcpy(void *dst,const void *src,size_t size)
 {
 	u8 *p_dst = (u8*) dst;
 	u8 *p_src = (u8*) src;
@@ -67,6 +67,33 @@ void print_buf(const void* buf,int size)
 			printf("\n");
 		}
 	}
+}
+char *strchr(char*s1, char c)
+{
+	char*p = 0;
+	while (*s1)
+	{
+		if(*s1 == c)
+		{
+			p = s1;
+			break;
+		}
+		s1++;
+	}
+	return p;
+}
+
+char* strrchr(char* s1,char c)
+{
+	char* p = 0;
+	while(*s1)
+	{
+		if(*s1==c)
+			p = s1;
+		++s1;
+	}
+	return p;
+
 }
 
 
