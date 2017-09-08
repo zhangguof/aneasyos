@@ -15,6 +15,7 @@ char *strchr(const char*s1, char c);
 //klib.c
 int	memcmp(const void * s1, const void *s2, unsigned int  n);
 int	strcmp(const char * s1, const char *s2);
+int	strncmp(const char * s1, const char *s2, unsigned int size);
 char*	strcat(char * s1, const char *s2);
 
 void print_buf(const void* buf,unsigned int  size);

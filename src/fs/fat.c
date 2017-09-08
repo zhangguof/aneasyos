@@ -5,6 +5,9 @@
 int hd_read_bytes(int driver,u32 lba,u32 byte_cnt,char data[]);
 void hd_read_MBR(int driver, struct part_ent partition_table[]);
 
+const int CLUSTER_SIZE = 4;
+const int ONE_CLUSTER_BYTES = 4 * SECTOR_SIZE;
+
 void print_bpb(BPB *bpb)
 {
 	//printf("%x\n", bpb->sector_size);
@@ -217,8 +220,8 @@ void read_sub_dirs(FS_DIR_ENTRY* p_entry,FS_DIR_ENTRY** p_free_entrys,FS_FAT16* 
 	u32 start_cluster = p_entry->dir_ent.start_cluster;
 	char sub_dirs_buf[32*128];//128 entrys?
 	//u32 read_cluster_chain(char* buf, u32 size,u32 start_cluster,FS_FAT16* fs_fat)
-	u32 ncluster =  read_cluster_chain(sub_dirs_buf, 0, start_cluster, fs_fat);
-	int max_cnt = ncluster * fs_fat->vbr.cluster_size * SECTOR_SIZE / sizeof(DirectoryEntry);
+	u32 nbytes =  read_cluster_chain(sub_dirs_buf, 0, start_cluster, fs_fat);
+	int max_cnt = nbytes / sizeof(DirectoryEntry);
 	DirectoryEntry* p = (DirectoryEntry*) sub_dirs_buf;
 	FS_DIR_ENTRY* cur_fs_entry = p_entry;
 	int num=0;
@@ -283,6 +286,7 @@ void read_root_dirs(FS_DIR_ENTRY* root_fs_entry,FS_DIR_ENTRY** p_free_entrys, FS
 			if(check_mark > 0)
 			{
 				FS_DIR_ENTRY* free_dir = get_free_fs_entry(p_free_entrys);
+				assert(free_dir);
 				free_dir->dir_ent = *(p+j);
 				get_83_name(free_dir->short_filename, &free_dir->dir_ent);
 
@@ -306,16 +310,41 @@ u32 get_next_cluster(u32 cur_cluster,u16* fat)
 	u16 mark = fat[cur_cluster];
 	if(mark >= 0xFFF8)
 	{
-		//printf("end mark:%x\n",mark);
 		return 0;
 	}
 	return mark;
 }
 
+u32 get_offest_cluster(u32 start_cluster,u32 offest,u16* fat)
+{
+	u32 n_cluster = offest / ONE_CLUSTER_BYTES;
+	u32 cur_cluster = start_cluster;
+	//u32 next_cluster = 0;
+
+	while(n_cluster--)
+	{
+		cur_cluster = get_next_cluster(cur_cluster, fat);
+	}
+	return cur_cluster;
+}
+
+u32 read_one_cluster(char *buf,u32 cluste,u32 start_offest,u32 size,FS_FAT16* fs_fat)
+{
+	printf("start_offest:%d,size:%d\n",start_offest,size);
+	assert(start_offest+size <= ONE_CLUSTER_BYTES);
+	if(size == 0)
+	{
+		size = ONE_CLUSTER_BYTES - start_offest;
+	}
+	char hd_buf[ONE_CLUSTER_BYTES];
+	int first_data_sector = fs_fat->data_start_sector;
+	int lba = first_data_sector + (cluste-2)*CLUSTER_SIZE;
+	hd_read_bytes(0, lba, ONE_CLUSTER_BYTES, hd_buf);
+	memcpy(buf, hd_buf+start_offest, size);
+}
 u32 read_cluster_chain(char* buf, u32 size,u32 start_cluster,FS_FAT16* fs_fat)
 {
-	const int CLUSTER_SIZE = 4;
-	const int ONE_CLUSTER_BYTES = CLUSTER_SIZE * SECTOR_SIZE;
+
 	const int FAT_RESEVER_CLUSTER = 2;
 	const int max_clustes = fs_fat->vbr.fat_sector_size * 512 / 2 ;
 	VBR_16* vbr = fs_fat->pvbr;
@@ -327,70 +356,116 @@ u32 read_cluster_chain(char* buf, u32 size,u32 start_cluster,FS_FAT16* fs_fat)
 	u16* fat = fs_fat->fat;
 	
 	u32 clustes = max_clustes;
-	u32 has_read_clustes = 0;
+	u32 has_read_bytes = 0;
 	if(size > 0)
 		clustes = (size+ONE_CLUSTER_BYTES-1)/ONE_CLUSTER_BYTES;
-	printf("read:start_cluster:%d,clustes:%d\n",start_cluster, clustes);
+	//printf("read:start_cluster:%d,clustes:%d\n",start_cluster, clustes);
 	
 	u32 cur_cluster = start_cluster;
 	u32 lba = first_data_sector + (cur_cluster-FAT_RESEVER_CLUSTER)*CLUSTER_SIZE;
-	while(clustes--){
-		hd_read_bytes(0, lba, ONE_CLUSTER_BYTES, buf);
+	while(size){
+		int read_size = size > ONE_CLUSTER_BYTES?ONE_CLUSTER_BYTES:size;
+		hd_read_bytes(0, lba, read_size, buf);
 		//printf("read offest:%d,%d\n",lba,lba*512);
-		buf += ONE_CLUSTER_BYTES;
+		buf += read_size;
 		cur_cluster = get_next_cluster(cur_cluster, fat);
-		has_read_clustes++;
+		has_read_bytes+=read_size;
+		size -= read_size;
 		if(!cur_cluster)
 		{
 			break;
-			printf("break!!!:%d\n",clustes);
+			//printf("break!!!:%d\n",clustes);
 		}
 		lba = first_data_sector + (cur_cluster-FAT_RESEVER_CLUSTER) * CLUSTER_SIZE;
 	}
-	printf("has read clustes:%d\n",has_read_clustes);
-	return has_read_clustes;
+	//printf("has read clustes:%d\n",has_read_bytes);
+	return has_read_bytes;
 }
 
-int find_par_dir_entry(FS_DIR_ENTRY* root_dirs,int root_cnt)
+FS_DIR_ENTRY* find_entry(FS_DIR_ENTRY*p,const char*filename)
 {
-
+	assert(p);
+	for(;p;p=p->next)
+	{
+		//printf("find in %s!\n",p->short_filename);
+		if(strcmp(p->short_filename, filename)==0)
+		{
+			return p;
+		}
+	}
+	return 0;
 }
 
-FS_DIR_ENTRY* get_file_dir(FS_DIR_ENTRY* root_dirs,int root_cnt, const char* filepath)
+FS_DIR_ENTRY* find_dir_entry(FS_DIR_ENTRY* root, const char* filepath)
 {
-	char *ps = strchr(filepath,'/');
-	char *ps2 = strchr(ps,'/');
-	char *pe = strrchr(filepath,'/');
-	char par_name[30];
-	if(ps && pe)
+	assert(root);
+	char *p = strchr(filepath,'/');
+	char path[30];
+	FS_DIR_ENTRY* ret;
+	// printf("find_dir_entry:%x\n",root);
+	// printf("find_dir_entry::root:%s\n",root->short_filename);
+	if(p)
 	{
-		if(pe==ps)
-			pe++;
-		strncpy(par_name, filepath, pe-ps); // /test/test2/a.txt get /test
-		if(strcmp(par_name, "/"))
+		int len = p == filepath?1:p-filepath;
+		strncpy(path, filepath, len);
+		ret = find_entry(root,path);
+		if(ret)
 		{
-			return root_dirs; //is root;
-		}
-		int i=0;
-		for(;i<root_cnt;++i)
-		{
-			if(strcmp(root_dirs[i].short_filename, par_name)==0)
-			{
-				return root_dirs+i;
-			}
+			assert(ret->dir_ent.file_attr & ATTR_DIRECTORY);
+			return find_dir_entry(ret, p+1);
 		}
 	}
-	else 
+	else
 	{
-		return 0;
+		ret = find_entry(root, filepath);
+		if(ret)
+		{
+			return ret;
+		}
 	}
+	//printf("[dir]can't find:%s\n",filepath);
+	return 0;
+}
+
+FS_DIR_ENTRY* get_file_dir(FS_DIR_ENTRY* root_dirs, const char* filepath)
+{
+	assert(*filepath == '/');
+	//printf("root next??%x,%s\n",root_dirs->next,root_dirs->short_filename);
+	return find_dir_entry(root_dirs->next, filepath+1);
 }
 
 //filename = "/test/2.txt" || "/1.txt"
-u32 read_file(const char* pfilename, char* buf, u32 count)
+u32 read_file(FS_DIR_ENTRY* fs_root, const char* filepath, char* buf, u32 offest,u32 count)
 {
+	FS_DIR_ENTRY* p_entry = get_file_dir(fs_root, filepath);
+	u16* fat = g_fs_fat16.fat;
+	if(!p_entry)
+		return 0;
+	u32 file_size = p_entry->dir_ent.file_size;
+	if(count == 0)
+		count = file_size - offest;
+	assert(file_size >= offest + count);
 	u32 read_byte = 0;
-	return 0;
+	u32 start_cluster = p_entry->dir_ent.start_cluster;
+	u32 offest_cluster = get_offest_cluster(start_cluster, offest,fat);
+	u32 offest_in_cluster = offest%ONE_CLUSTER_BYTES;
+	u32 size = count + offest_in_cluster>ONE_CLUSTER_BYTES?ONE_CLUSTER_BYTES-offest_in_cluster:count;
+	printf("count:%d,offest_cluster:%d,offest_in_cluster:%d,\n",count,offest_cluster,offest_in_cluster);
+	read_one_cluster(buf, offest_cluster, offest_in_cluster,size,&g_fs_fat16);
+	count -= size;
+	read_byte+=size;
+	buf += size;
+
+	u32 next_cluster =  get_next_cluster(offest_cluster, fat);
+	if(next_cluster)
+	{
+		u32 nbytes = read_cluster_chain(buf,count,next_cluster,&g_fs_fat16);
+		buf+=count;
+		read_byte+= nbytes;
+	}
+
+
+	return read_byte;
 }
 
 void read_vbr_16()
@@ -449,13 +524,40 @@ void read_vbr_16()
 	p_root_fs_entry->parent_dir = p_root_fs_entry;
 	read_root_dirs(p_root_fs_entry,&free_fs_dir_entrys,fs_fat);
 
+	// const char* fname = "/1.TXT";
+	// FS_DIR_ENTRY* f = get_file_dir(p_root_fs_entry, fname);
+	// if(f)
+	// 	printf("%s, find :%s,size:%d\n",fname,f->short_filename,f->dir_ent.file_size);
+	// else
+	// 	printf("can't find:%s\n",fname);
 
-	print_dirs(p_root_fs_entry);
+	// fname = "/TEST/1.TXT";
+	// f = get_file_dir(p_root_fs_entry, fname);
+	// if(f)
+	// 	printf("%s,find :%s,size:%d\n",fname,f->short_filename,f->dir_ent.file_size);
+	// else
+	// 	printf("can't find:%s\n",fname);
+	// fname = "/TEST/2.TXT";
+	// f = get_file_dir(p_root_fs_entry, fname);
+	// if(f)
+	// 	printf("%s,find :%s,size:%d\n",fname,f->short_filename,f->dir_ent.file_size);
+	// else
+	// 	printf("can't find:%s\n",fname);
+
+
+	//print_dirs(p_root_fs_entry);
 	char file_buf[7925];
-	//read_fat((char*)fat,&fs_fat.vbr);
-	read_cluster_chain(file_buf, 7925, 23, fs_fat);
-	file_buf[7924] = '\0';
-	printf("%s\n",file_buf+7925-10);
+	//read_cluster_chain(file_buf, 7925, 23, fs_fat);
+	//file_buf[7924] = '\0';
+	//printf("%s\n",file_buf+7925-10);
+	int bytes = read_file(p_root_fs_entry, "/2.TXT", file_buf, 7924-4*512, 4*512);
+	printf("read bytes:%d\n",bytes);
+	file_buf[bytes] = '\0';
+
+
+	
+
+
 	
 
 }

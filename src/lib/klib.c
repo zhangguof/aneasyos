@@ -168,6 +168,24 @@ void delay(int time)
 	return (*p1 - *p2);
 }
 
+ int strncmp(const char * s1, const char *s2, u32 size)
+{
+	if ((s1 == 0) || (s2 == 0)) { /* for robustness */
+		return (s1 - s2);
+	}
+
+	const char * p1 = s1;
+	const char * p2 = s2;
+	int i=0;
+	for (; *p1 && *p2 && i < size;i++, p1++,p2++) {
+		if (*p1 != *p2) {
+			break;
+		}
+	}
+
+	return (*p1 - *p2);
+}
+
 /*****************************************************************************
  *                                strcat
  *****************************************************************************/
